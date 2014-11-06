@@ -19,20 +19,24 @@ public class CardStraights {
       , hi = 0
       , j = jokers
       , longest = 0
-      , diff = 0;
-
+      , diff = 0
+      , ddex = -1;
+    
     if (cardArray.length > 0 )
       hi = 1;
-
     while (hi < cardArray.length) {
       diff = cardArray[hi] - (cardArray[hi-1]+1);
-      //System.out.println(String.format("lo = %s, hi = %s, j = %s, cardArray[hi] = %s, cardArray[hi-1] = %s,  diff = %s", lo,  hi, j, cardArray[hi], cardArray[hi-1],  diff));
+      //System.out.println(String.format("lo = %s, hi = %s, j = %s, ddex = %s, cardArray[hi-1] = %s, cardArray[hi] = %s, diff = %s, longest = %s", lo,  hi, j, ddex, cardArray[hi-1], cardArray[hi], diff, longest));
       if (diff > 0) {
-        if (diff <= j)
+        if (diff <= j) {
           j -= diff;
+          ddex = hi;
+        }
         else {
+          if (j == jokers)
+            ddex = hi;
           longest = Math.max(longest, hi-lo);
-          lo = hi;
+          lo = hi = ddex;
           j = jokers;
         }
       }

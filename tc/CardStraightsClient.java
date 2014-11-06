@@ -15,7 +15,7 @@ public class CardStraightsClient {
     List<Integer> list = new ArrayList<Integer>();
     Deque<Integer> digits = new ArrayDeque<Integer>();
     List<CardStraightsAnswerKey> keys = new ArrayList<CardStraightsAnswerKey>();
-    int ch, num = 0, delimit = 0, straight = 0;
+    int ch, num = 0, prevDelim = 0, straight = 0;
 
     while ((ch = System.in.read()) != -1) {
       if (ch != SPACE && 
@@ -28,38 +28,33 @@ public class CardStraightsClient {
         System.exit(1);
       }
 
-      //System.out.println(ch);
       if (ch >= DECIMAL_ZERO && ch <= DECIMAL_NINE) {
           digits.add(ch);
       } else if (ch == SPACE || ch == COMMA || ch == TAB || ch == CR || ch == LF) {
-        if (digits.size() == 0) continue;
-        num = buildInt(digits);
-        if (ch == SPACE || ch == COMMA || ch == TAB)
-          list.add(num);
-        else {
-          straight = num;
-          keys.add(new CardStraightsAnswerKey(IToPConverter.convert(list), straight));
-          list = new ArrayList<Integer>();
+        //System.out.println(String.format("ch = %s", ch));
+        if (digits.size() > 0) {
+          num = buildInt(digits);
+          if (ch == SPACE || ch == COMMA || ch == TAB)
+            list.add(num);
+          else {
+            //System.out.println(String.format("prevDelim = %s", prevDelim));
+            if (prevDelim == TAB) straight = num;
+            else list.add(num);
+            keys.add(new CardStraightsAnswerKey(IToPConverter.convert(list), straight));
+            list = new ArrayList<Integer>();
+          }
         }
-        num = 0;
+        prevDelim = ch;
       } 
     }
 
-    // place = digits.size() - 1;
-    // while (digits.size() > 0)
-    //   num += (digits.poll() - DECIMAL_ZERO)*Math.pow(10, place--);
-    // list.add(num);
-
-    // System.out.print("Hand:");
-    // int[] arr = IToPConverter.convert(list);
-    // for (int i : arr)
-    //   System.out.print(String.format(" %s",i));
-
-    // CardStraights cs = new CardStraights();
-    // System.out.println("");
-    // System.out.println(String.format("Longest straight: %s", cs.longestStraight(arr)));
-    for (CardStraightsAnswerKey k : keys)
-      System.out.println(k);
+    for (CardStraightsAnswerKey k : keys) {
+      //System.out.println(k);
+      CardStraights cs = new CardStraights();
+      int longest = cs.longestStraight(k.cards);
+      if (longest != k.longestStraight)
+        System.out.println(String.format("FAILED: %s\t%s", k, longest));    
+    }
 
   }
 
