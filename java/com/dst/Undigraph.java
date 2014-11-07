@@ -14,8 +14,21 @@ public class Undigraph<T> implements Graph<T> {
 
   public Undigraph(T[] vertices) {
     this();
-    for (T vertex : vertices)
-      V.put(vertex, new HashSet<T>());
+    for (T vertex : vertices) {
+      if (!V.containsKey(vertex))
+        V.put(vertex, new HashSet<T>());
+    }
+  }
+
+  public Undigraph(T[] v1, T[] v2) {
+    this(v1);
+    for (T v : v2) {
+      if (!V.containsKey(v))
+        V.put(v, new HashSet<T>());
+    }
+    
+    for (int i = 0; i < v1.length; i++)
+      addEdge(v1[i], v2[i]);
   }
 
   // public methods
@@ -42,10 +55,14 @@ public class Undigraph<T> implements Graph<T> {
   public String toString() {
     StringBuilder sb = new StringBuilder(100);
     for (Enumeration k = V.keys(); k.hasMoreElements();) {
-      T key = (T)k.nextElement();
-      for (T v : V.get(key))
-        sb.append(String.format("%s-%s ", key, v));
+      T v = (T)k.nextElement();
+      Set<T> edges = V.get(v);
+      sb.append(String.format("%s:", v));
+      for (T e : edges)
+        sb.append(String.format(" %s", e));
+      sb.append("\n");
     }
+    sb.deleteCharAt(sb.length()-1);
     return sb.toString();
   }
 
