@@ -3,19 +3,19 @@ package com.dst;
 import java.util.*;
 
 public class Undigraph<T> implements Graph<T> {
-  Dictionary<T, Set<T>> V;
+  Hashtable<T, Set<T>> V;
   int E;
 
   // constructor
-  private Graph() {
-    this.V = new Hashtable<T, HashSet<T>>();
+  private Undigraph() {
+    this.V = new Hashtable<T, Set<T>>();
     E = 0;
   }
 
-  public Graph(T[] vertices) {
+  public Undigraph(T[] vertices) {
     this();
     for (T vertex : vertices)
-      V.add(vertex, new HashSet<T>());
+      V.put(vertex, new HashSet<T>());
   }
 
   // public methods
@@ -28,23 +28,25 @@ public class Undigraph<T> implements Graph<T> {
   }
 
   public void addEdge(T v, T w) {
-    if (!V.containsKey(t) || !V.containsKey(w))
+    if (!V.containsKey(v) || !V.containsKey(w))
       return;
-    V[v].add(w);
-    V[w].add(v);
+    V.get(v).add(w);
+    V.get(w).add(v);
     E++;
   }
 
   public Iterable<T> adj(T v) {
-    return V[v];
+    return V.get(v);
   }
 
   public String toString() {
-    for (T k : V.keys()) {
-      for (T v : V[k])
-        System.out.print(String.format("%s-%s\t", k, v));
-      System.out.println("");
+    StringBuilder sb = new StringBuilder(100);
+    for (Enumeration k = V.keys(); k.hasMoreElements();) {
+      T key = (T)k.nextElement();
+      for (T v : V.get(key))
+        sb.append(String.format("%s-%s ", key, v));
     }
+    return sb.toString();
   }
 
 }
