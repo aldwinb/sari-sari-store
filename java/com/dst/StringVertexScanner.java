@@ -1,9 +1,12 @@
 package com.dst;
 
+import java.io.InputStream;
+import java.io.IOException;
 import java.util.*;
 
-public class PrintUndigraph {
-  public static void main(String[] args) throws java.io.IOException {
+public class StringVertexScanner {
+  private Graph<String> g;
+  public StringVertexScanner(InputStream in, int type) throws IOException {
     final int SPACE = 32;
     final int COMMA = 44;
     final int TAB = 9;
@@ -17,7 +20,7 @@ public class PrintUndigraph {
     List<String> list2 = new ArrayList<String>();
     int ch;
     
-    while ((ch = System.in.read()) != -1) {
+    while ((ch = in.read()) != -1) {
       if (ch == TAB || ch == SPACE) {
         list1.add(sb.toString());
         sb = new StringBuilder(10);
@@ -33,8 +36,10 @@ public class PrintUndigraph {
     String[] arr2 = new String[list2.size()];
     arr2 = list2.toArray(arr2);
 
-    Graph g = new Undigraph(arr1, arr2);
-    System.out.println("Graph:");
-    System.out.println(g);
+    g = new Undigraph<String>(arr1, arr2);
+  }
+
+  public Graph<String> graph() {
+    return g;  
   }
 }

@@ -43,6 +43,8 @@ public class Undigraph<T> implements Graph<T> {
   public void addEdge(T v, T w) {
     if (!V.containsKey(v) || !V.containsKey(w))
       return;
+    //System.out.println(String.format("Add edge: %s %s", v, w));
+    //System.out.println(String.format("Add edge: %s %s", w, v));
     V.get(v).add(w);
     V.get(w).add(v);
     E++;
@@ -56,8 +58,8 @@ public class Undigraph<T> implements Graph<T> {
     StringBuilder sb = new StringBuilder(100);
     for (Enumeration k = V.keys(); k.hasMoreElements();) {
       T v = (T)k.nextElement();
-      Set<T> edges = V.get(v);
       sb.append(String.format("%s:", v));
+      Set<T> edges = V.get(v);
       for (T e : edges)
         sb.append(String.format(" %s", e));
       sb.append("\n");
