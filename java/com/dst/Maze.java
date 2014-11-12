@@ -16,7 +16,7 @@ public class Maze {
   private int N;
 
   public Maze(int N) {
-    this.N = N+CELL_DIST;
+    this.N = N % 2 == 0 ? N+CELL_DIST+1 : N+CELL_DIST;
     maze = new int[this.N][this.N];
     visited = new boolean[this.N][this.N];
     marked = new boolean[this.N][this.N];
@@ -50,23 +50,26 @@ public class Maze {
     if (x-CELL_DIST < 0) crumbled.add(WEST);
 
     //System.out.println(String.format("x-CELL_DIST = %s, y = %s", x-CELL_DIST, y));
-    while (crumbled.size() < 4) {     
+    while (crumbled.size() < 4) {
+      for (int d : new int[] { NORTH, EAST, SOUTH, WEST }) {
+        if (crumbled.contains(d)) continue;
+        if (d == NORTH && visited[x][y+CELL_DIST]) crumbled.add(NORTH);
+        else if (d == SOUTH && visited[x][y-CELL_DIST]) crumbled.add(SOUTH);
+        else if (d == EAST && visited[x+CELL_DIST][y]) crumbled.add(EAST);
+        else if (d == WEST && visited[x-CELL_DIST][y]) crumbled.add(WEST);
+      }
+      
+      if (crumbled.size() == 4) break;
+      
       int r = new Random().nextInt(3);
       while (crumbled.contains(r % 4))
         r += 3;
-
       int nextWall = r % 4;
-      if (nextWall == NORTH && visited[x][y+CELL_DIST]) crumbled.add(NORTH);
-      else if (nextWall == SOUTH && visited[x][y-CELL_DIST]) crumbled.add(SOUTH);
-      else if (nextWall == EAST && visited[x+CELL_DIST][y]) crumbled.add(EAST);
-      else if (nextWall == WEST && visited[x-CELL_DIST][y]) crumbled.add(WEST);
 
-      if (crumbled.size() == 4) break;
-
-      System.out.println(String.format("x = %s, y = %s, nextWall = %s", x, y, nextWall));
-      for (int i : crumbled)
-        System.out.print(String.format("%s ", i));
-      System.out.println("");
+      // System.out.println(String.format("x = %s, y = %s, nextWall = %s", x, y, nextWall));
+      // for (int i : crumbled)
+      //   System.out.print(String.format("%s ", i));
+      // System.out.println("");
       
       int x1 = x
         , x2 = x
@@ -91,7 +94,7 @@ public class Maze {
       wallST.get(maze[x2][y2]).add((nextWall+CELL_DIST) % 4);
       dfs(x2, y2);
 
-      System.out.println(String.format("After DFS, crumbled.size() = %s", crumbled.size()));
+      //System.out.println(String.format("After DFS, crumbled.size() = %s", crumbled.size()));
     }
 
     marked[x][y] = true;
@@ -101,10 +104,9 @@ public class Maze {
     int N = Integer.parseInt(args[0]);
     Maze m = new Maze(N);
     boolean[][] maze = m.maze();
-    for (int i = m.size()-1; i >= 0; i--) {
-      for (int j = 0; j < m.size(); j++) {
-        System.out.print(String.format("%s ", maze[i][j] ? "o" : "."));   
-      }
+    for (int j = m.size()-1 ; j >= 0; j--) {
+      for (int i = 0; i < m.size(); i++)
+        System.out.print(String.format("%s ", maze[i][j] ? " " : "."));   
       System.out.println("");
     }
   }
