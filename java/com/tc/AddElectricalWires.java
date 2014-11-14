@@ -1,4 +1,6 @@
-package com.dst;
+package com.tc;
+
+import java.util.*;
 
 public class AddElectricalWires {
  
@@ -62,7 +64,8 @@ public class AddElectricalWires {
           sb.append(String.format(" %s", e));
         sb.append("\n");
       }
-      sb.deleteCharAt(sb.length()-1);
+      if (sb.length() > 0)
+        sb.deleteCharAt(sb.length()-1);
       return sb.toString();
     }
 
@@ -79,14 +82,16 @@ public class AddElectricalWires {
   }
 
   public int maxNewWires(String[] wires, int[] gridConnections) {
-    int[] vertices = new [wires.length];
-    Undigraph<Integer> g = new Undigraph<Integer>();
+    Integer[] vertices = new Integer[wires.length];
+    for (int i = 0; i < vertices.length; i++)
+      vertices[i] = i;
+    Undigraph<Integer> g = new Undigraph<Integer>(vertices);
 
     // build predefined edges
     for (int i = 0; i < vertices.length; i++) {
       char[] xs = wires[i].toCharArray();
       for (int j = 0; j < vertices.length; j++) {
-        if (xs[j] = '1' && i != j)
+        if (xs[j] == '1' && i != j)
           g.addEdge(j, i);
       }
     }
