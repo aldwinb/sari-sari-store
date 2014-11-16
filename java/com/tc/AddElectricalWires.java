@@ -3,10 +3,20 @@ package com.tc;
 import java.util.*;
 
 public class AddElectricalWires {
+  private boolean marked[];
+  private boolean gridConnected[];
+  private int V[];
+  private int E[];
+  private Set<Integer> gridConnSet;
+  private int cc;
  
+  public AddElectricalWires() {
+    cc = 0;
+  }
+
   private class Undigraph<T> {
-    Hashtable<T, Set<T>> V;
-    int E;
+    private Hashtable<T, Set<T>> V;
+    private int E;
 
     // constructor
     private Undigraph() {
@@ -20,17 +30,6 @@ public class AddElectricalWires {
         if (!V.containsKey(vertex))
           V.put(vertex, new HashSet<T>());
       }
-    }
-
-    public Undigraph(T[] v1, T[] v2) {
-      this(v1);
-      for (T v : v2) {
-        if (!V.containsKey(v))
-          V.put(v, new HashSet<T>());
-      }
-      
-      for (int i = 0; i < v1.length; i++)
-        addEdge(v1[i], v2[i]);
     }
 
     // public methods
@@ -71,32 +70,68 @@ public class AddElectricalWires {
 
   }
 
-  private class Node {  
-    public int id;
-    public boolean isGridNode;
-
-    public Node(int id, boolean isGridNode) {
-      this.id = id;
-      this.isGridNode = isGridNode;
-    }
-  }
-
   public int maxNewWires(String[] wires, int[] gridConnections) {
     Integer[] vertices = new Integer[wires.length];
-    for (int i = 0; i < vertices.length; i++)
+    gridConnSet = new HashSet<Integer>(gridConnections.length);
+    
+    for (int i = 0; i < wires.length; i++)
       vertices[i] = i;
-    Undigraph<Integer> g = new Undigraph<Integer>(vertices);
+    for (int gc : gridConnections)
+      gridConnSet.add(gc);
+
+    Undigraph g = new Undigraph(vertices);
 
     // build predefined edges
-    for (int i = 0; i < vertices.length; i++) {
+    for (int i = 0; i < g.V(); i++) {
       char[] xs = wires[i].toCharArray();
-      for (int j = 0; j < vertices.length; j++) {
-        if (xs[j] == '1' && i != j)
+      for (int j = 0; j < g.V(); j++) {
+        if (xs[j] == '1' && i != j) { 
+          g.addEdge(i, j);
           g.addEdge(j, i);
+        }
       }
     }
 
-    System.out.println(g);
-    return 0;
-  } 
+    marked = new boolean[g.V()];
+    gridConnected = new boolean[g.V()];
+    V = new int[g.V()];
+    E = new int[g.V()];
+    
+    // check connected components
+    int maxGridWires = 0, maxGridV = 0, maxGrid = 0;
+    int maxNonGridV = 0, maxNonGridE = 0;
+    boolean maxGridConnected = false;
+    for (int i = 0; i < g.V(); i++) {
+      if (!marked[i]) {
+        dfs(g, i);
+        if (!gridConnected[cc]) {
+          maxNonGridV += V[cc];
+          maxNonGridE += E[cc];
+        } else {
+          maxGrid += ((V[cc]*(V[cc]-1)) / 2) - (E[cc] / 2);
+          maxGridV = Math.max(maxGridV, V[cc]);
+        }
+        
+        //System.out.println(String.format("V = %s, E = %s, gridConnected = %s, maxNonGridV = %s, maxNonGridE = %s, maxGridV = %s, maxGrid = %s", V[cc], E[cc] / 2, gridConnected[cc], maxNonGridV, maxNonGridE, maxGridV, maxGrid));
+        cc++;
+        //E[cc++] /= 2;
+      }
+    }
+
+    return (((maxNonGridV*(maxNonGridV-1)) / 2) - (maxNonGridE / 2)) + (maxNonGridV*maxGridV) + maxGrid;
+  }
+
+  private void dfs(Undigraph<Integer> g, int v) {
+    marked[v] = true;
+    V[cc]++;
+    if (gridConnSet.contains(v))
+      gridConnected[cc] = true;
+    int edgeCount = 0;
+    for (Integer w : g.adj(v)) {
+      edgeCount++;
+      if (!marked[w])
+        dfs(g, w);
+    }
+    E[cc] += edgeCount;
+  }
 }
