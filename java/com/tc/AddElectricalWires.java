@@ -110,11 +110,8 @@ public class AddElectricalWires {
         } else {
           maxGrid += ((V[cc]*(V[cc]-1)) / 2) - (E[cc] / 2);
           maxGridV = Math.max(maxGridV, V[cc]);
-        }
-        
-        //System.out.println(String.format("V = %s, E = %s, gridConnected = %s, maxNonGridV = %s, maxNonGridE = %s, maxGridV = %s, maxGrid = %s", V[cc], E[cc] / 2, gridConnected[cc], maxNonGridV, maxNonGridE, maxGridV, maxGrid));
+        } 
         cc++;
-        //E[cc++] /= 2;
       }
     }
 
