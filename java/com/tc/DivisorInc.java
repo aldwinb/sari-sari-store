@@ -4,8 +4,6 @@ import java.util.*;
 
 public class DivisorInc {
   private Set<Integer> marked;
-  private boolean pathFound;
-  private int level;
 
   public DivisorInc() {
     marked = new HashSet<Integer>();
@@ -13,34 +11,32 @@ public class DivisorInc {
   }
 
   public int countOperations(int N, int M) {
-    if (N == M) return 0;
-    dfs(N, M);
-    return level;
-    //return pathFound ? level : -1;
+    return dfs(N, M, 0);
   }
 
-  private void dfs(int v, int N) {
+  private void dfs(int v, int N, int level) {
     marked.add(v);
-    int d = 2, 
-        half = (v / 2),
-        q = 0;
+    int d = ld(v);
+    if (d == -1) return -1;
+    
+    int q = v / d;
+    if (q+v == N || d+v == N)
+      return level;
+    
+    if (v+d < N && N < q+d)
+      return search(v+d, q+d, v, N);
 
-    while (!pathFound && d <= half) {
-      if (v % d == 0) {
-        System.out.println(String.format("v = %s, d = %s, level = %s", v, d, level));
-        q = v / d;
-        if (v+q > N) break;
-        else if (v+q == N) pathFound = true;
-        else if (!marked.contains(v+q))
-          dfs(v+q, N);
-      }
-      d++;
-    }
+    return dfs(q+v, N, level++);
+  }
 
-    //if (!pathFound && v+q == N)
-    //  pathFound = true;
+  private int ld(int v) {
+    return 1;
+  }
 
-    if (pathFound)
-      level++;
+  private int search(int lo, int hi, int v, int N, int level) {
+    int mid = (lo + hi) / 2;
+    if (N > mid) search(mid+1, hi, v, N);
+    if (N < mid) search(lo, m-1, v, N);
+    return v % (N-v) == 0 ? level : -1;
   }
 }
