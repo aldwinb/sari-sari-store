@@ -12,24 +12,29 @@ public class DivisorIncClient {
     final int CR = 13;
     final int DECIMAL_ZERO = 48;
     final int DECIMAL_NINE = 57;
+    final int NEGATIVE_SIGN = 45;
     
     Deque<Integer> digits = new ArrayDeque<Integer>();
     List<DivisorIncAnswerKey> keys = new ArrayList<DivisorIncAnswerKey>();
     int ch, num = 0, N = 0, M = 0;
+    boolean negative = false;
 
     while ((ch = System.in.read()) != -1) {
       if (ch != COMMA && 
           ch != TAB && 
           ch != LF && 
           ch != CR && 
+          ch != NEGATIVE_SIGN  &&
           (ch < DECIMAL_ZERO || ch > DECIMAL_NINE)) {
         System.out.println(String.format("Invalid argument '%s'. Integers only.", ch));
         System.exit(1);
       }
 
-      if (ch >= DECIMAL_ZERO && ch <= DECIMAL_NINE) {
-          digits.add(ch);
-      } else if (ch == COMMA || ch == TAB || ch == CR || ch == LF) {
+      if (ch >= DECIMAL_ZERO && ch <= DECIMAL_NINE)
+        digits.add(ch);
+      else if (ch == NEGATIVE_SIGN)
+        negative = true;
+      else if (ch == COMMA || ch == TAB || ch == CR || ch == LF) {
         if (digits.size() > 0) {
           num = buildInt(digits);
           if (ch == COMMA)
@@ -37,8 +42,11 @@ public class DivisorIncClient {
           else if (ch == TAB)
             M = num;
           else {
+            if (negative)
+              num = -num;
             keys.add(new DivisorIncAnswerKey(N, M, num));
             N = M = 0;
+            negative = false;
           }
         }
       } 
