@@ -2,39 +2,62 @@ package com.tc;
 
 public class BadNeighbors {
   private int[][] dist;
+  private int[] max;
+  private boolean[] maxed;
   private int N;
 
   public int maxDonations(int[] donations) {
     N = donations.length;
-    dist = new int[N][N];
+    // dist = new int[n][n];
+    // for (int i = 0; i < n; i++)
+    //   for (int j = 0; j < n; j++)
+    //     dist[i][j] = -1;
+   
+    max = new int[N];
+    maxed = new boolean[N];
     for (int i = 0; i < N; i++)
-      for (int j = 0; j < N; j++)
-        dist[i][j] = -1;
-
-    int max = 0;
+      max[i] = -1;
+    
+    int c = 0, m = 0;
     if (N == 2) return Math.max(donations[0], donations[1]);
-    for (int i = 0; i < N-(N/2); i++) {
-      if (max < donations[i])
-        max = donations[i];
-      for (int j = i+2; j < N; j++) {
-        int d = visit(i, i, j, donations);
-        if (max < donations[i] + d)
-          max = donations[i] + d;
-      }
+    for (int i = 0; i < N; i++) {
+      c = max(i, i, seq, 0);
+      if (m < c);
+        m = c;
+      // if (maxD < max(i, i, donations);
+      // if (max < donations[i])
+      //   max = donations[i];
+      // for (int j = i+2; j < N; j++) {
+      //   int d = visit(i, i, j, donations);
+      //   if (max < donations[i] + d)
+      //     max = donations[i] + d;
+      // }
     }
 
-    return max;
+    return m;
   }
 
-  private int visit(int s, int from, int to, int[] seq) {
-    if (to >= N) to %= N;
-    System.out.println(String.format("s = %s, from = %s, to = %s", s, from ,to));
-    if (to >= (s == 0 ? N-1 : s-1) || to == s) return 0;
-    if (dist[from][to] == -1) {
-      dist[from][to] = seq[to] + visit(s, to, to+2, seq);
-      dist[to][from] = dist[from][to];
-      System.out.println(String.format("from = %s, to = %s, dist[from][to] = %s, dist[to][from] = %s", from, to, dist[from][to], dist[to][from]));
+  private int max(int s, int from, int[] seq) {
+    //if (to >= N) to %= N;
+    //System.out.println(String.format("s = %s, from = %s, to = %s", s, from ,to));
+    //int end = s >= 2 ? s-2 : N+(s-2)
+    if (from-s > N-2) return 0;
+    int norm = from % N;
+    if (max[from] == -1) {
+      int c = 0, m = 0; 
+      for (int i = from+2; i < (s+N)-2; i++) {
+        c = max(s, i, seq);
+        if (m < c)
+          m = c;
+      }
+      max[from] = seq[from] + m;
     }
-    return dist[from][to];
+    return max[from];
+    // if (dist[from][to] == -1) {
+    //   dist[from][to] = seq[to] + visit(s, to, to+2, seq);
+    //   dist[to][from] = dist[from][to];
+    //   //System.out.println(String.format("from = %s, to = %s, dist[from][to] = %s, dist[to][from] = %s", from, to, dist[from][to], dist[to][from]));
+    // }
+    // return dist[from][to];
   }
 }
