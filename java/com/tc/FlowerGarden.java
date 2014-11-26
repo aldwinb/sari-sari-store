@@ -1,5 +1,7 @@
 package com.tc;
 
+import java.util.*;
+
 public class FlowerGarden {
 
   private class Flower {
@@ -19,54 +21,85 @@ public class FlowerGarden {
 
   private List<Integer> order;
   private Flower[] flowers;
-  private int N;
+  //private int N;
 
   public int[] getOrdering(int[] height, int[] bloom, int[] wilt) {
-    N = height.length;
+    int N = height.length;
     order = new ArrayList<Integer>(N);
     flowers = new Flower[height.length];
     for (int i = 0; i < N; i++)
       flowers[i] = new Flower(height[i], bloom[i], wilt[i]);
 
-    for (int i = N-1; i >= 0; i--) {
-      sink(i);
+    order.add(0, 0);
+    for (int i = 1; i < N; i++) {
+      sink(i, 0, order.size()-1);
       //order[i] = flowers[i].height;
     }
 
+    int[] orderArr = new int[N];
     for (int i = 0; i < N; i++)
-      order[i] = flowers[i].height;
-    return order;
+      orderArr[i] = flowers[order.get(i)].height;
+    return orderArr;
   }
 
   private void sink(int f, int lo, int hi) {
-
-    System.out.println(String.format("f = %s, f1 = %s f2 = %s",f,flowers[f], flowers[f+1]));
-    // no overlaps
-    if ((flowers[f].bloom < flowers[order.get(lo)].bloom 
-        && flowers[f].wilt < flowers[order.get(lo)].wilt
-        && flowers[f].wilt < flowers[order.get(lo)].bloom
-        && flowers[f].height > flowers[order.get(lo)].height)
-        || 
-      ((flowers[f].wilt >= flowers[order.get(lo)].bloom
-        || flowers[f].wilt >= flowers[order.get(lo)].wilt)
-        && flowers[f].height < flowers[order.get(lo)].height)
-      order.add(lo-1, f);
-    else if ((flowers[f].bloom > flowers[order.get(hi)].bloom 
-        && flowers[f].wilt > flowers[order.get(hi)].wilt
-        && flowers[f].wilt > flowers[order.get(hi)].bloom
-        && flowers[f].height <= flowers[order.get(hi)].height)
-        || 
-      ((flowers[f].wilt < flowers[order.get(hi)].bloom
-        || flowers[f].wilt < flowers[order.get(hi)].wilt)
-        && flowers[f].height >= flowers[order.get(hi)].height)
-      order.add(hi+1, f);
-    else
-      sink(f, lo+1, hi-1);
-    System.out.println(String.format("Sinking: f = %s, f1 = %s f2 = %s",f,flowers[f], flowers[f+1]));
+    if (lo > hi) { 
+      order.add(lo, f);
+      System.out.print("Order:");
+      for (int c : order)
+        System.out.print(String.format(" %s", c));
+      System.out.println("");
+      return;
+    }
+    //if (lo == f) order.add(lo, f);
+    //else if (hi-lo == 1)order.add(lo+1, f);
+    //if (flowers[f].bloom > flowers[lof].bloom && flowers[f].wilt < flowers[hof].wilt)
+    //  sink (f, lo+1, hi-1);
+    // no overlapsl
     
-    // Flower tmp = flowers[f+1];
-    // flowers[f+1] = flowers[f];
-    // flowers[f] = tmp;
-    // sink(f+1);
+    int lof = order.get(lo), hif = order.get(hi);
+    System.out.println(String.format("f = %s, lo = %s, hi = %s, f1 = %s f2 = %s f3 = %s",f, lo, hi,flowers[f], flowers[lof], flowers[hif]));
+    if ((flowers[f].height > flowers[hif].height
+          && (flowers[f].wilt < flowers[lof].bloom
+            || flowers[f].bloom > flowers[hif].wilt))
+        || flowers[f].height < flowers[lof].height
+          && !(flowers[f].wilt < flowers[lof].bloom
+            || flowers[f].bloom > flowers[hif].wilt))
+      order.add(lo, f);
+    // else if ((flowers[f].height < flowers[hif].height
+    //       && (flowers[f].wilt < flowers[lof].bloom
+    //         || flowers[f].bloom > flowers[hif].wilt))
+    //     || flowers[f].height > flowers[hif].height)
+    //   order.add(hi+1, f);
+    else sink(f, lo+1, hi);
+    //     || 
+    //     (flowers[f].height < flowers[lof].height 
+    //       && (flowers[f].bloom < flowers[lof].bloom 
+    //         && flowers[f].wilt >= flowers[lof].bloom
+    //         && flowers[f].wilt <= flowers[hif].wilt)
+    //       || (flowers[f].bloom == flowers[lof].bloom
+    //         && flowers[f].wilt == flowers[hif].wilt))
+    //   order.add(lo, f);
+    // else if (flowers[f].height < flowers[lof].height
+    //     && flowers[f].bloom > flowers[lof].bloom
+    //     && flowers[f].wilt == flowers[hif].wilt)
+    //   order.add(lo, f);
+    
+    // else if ((flowers[f].height < flowers[hif].height 
+    //     && flowers[f].bloom > flowers[hif].bloom 
+    //     && flowers[f].wilt > flowers[hif].wilt
+    //     && flowers[f].wilt > flowers[hif].bloom
+    //       
+    //       flowers[f].height > flowers[hif].height
+    //     && flowers[f].wilt >= flowers[hif].wilt 
+    //     && flowers[f].bloom >= flowers[hif].wilt)
+    //     ||
+    //   ()
+    //   order.add(hi+1, f);
+    //else if (flowers[f].height > flowers[order.get(hi)].height
+    //    && flowers[f].bloom <
+    //else
+    //  sink(f, lo+1, hi-1);
+    //System.out.println(String.format("Sinking: f = %s, f1 = %s f2 = %s",f,flowers[f], flowers[f+1]));
   }
 }
