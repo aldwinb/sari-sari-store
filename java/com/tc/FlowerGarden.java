@@ -19,21 +19,29 @@ public class FlowerGarden {
     }
   }
 
-  private List<Integer> order;
   private Flower[] flowers;
-  //private int N;
+  private Flower[] max;
+  private Flower cmax;
+  private List<Integer> order;
 
   public int[] getOrdering(int[] height, int[] bloom, int[] wilt) {
     int N = height.length;
+    flowers = new Flower[N];
+    max = new Flower[N];
     order = new ArrayList<Integer>(N);
-    flowers = new Flower[height.length];
-    for (int i = 0; i < N; i++)
+    
+    cmax = new Flower(-1, 1000, -1);
+    for (int i = 0; i < N; i++) {
       flowers[i] = new Flower(height[i], bloom[i], wilt[i]);
-
-    order.add(0, 0);
-    for (int i = 1; i < N; i++) {
-      sink(i, 0, order.size()-1);
-      //order[i] = flowers[i].height;
+      max[i] = new Flower(-1, 1000, -1);
+    }
+    for (int i = 0; i < N; i++) {
+      sink(i, 0, order.size());
+      //System.out.println("Maxes: ");
+      //for (int j = 0; j < N; j++) {
+        //if (max[j].height > -1) //System.out.println(String.format(" %s", max[j]));
+      }
+      //System.out.println("");
     }
 
     int[] orderArr = new int[N];
@@ -42,64 +50,34 @@ public class FlowerGarden {
     return orderArr;
   }
 
-  private void sink(int f, int lo, int hi) {
-    if (lo > hi) { 
+  private void sink(int f, int lo, int N) {
+    Flower n = flowers[f];
+
+    if (lo == N) { 
       order.add(lo, f);
-      System.out.print("Order:");
-      for (int c : order)
-        System.out.print(String.format(" %s", c));
-      System.out.println("");
+      setMax(max[f], n, n);
+      //System.out.println(String.format("Max (reached N): %s", max[f]));
       return;
     }
-    //if (lo == f) order.add(lo, f);
-    //else if (hi-lo == 1)order.add(lo+1, f);
-    //if (flowers[f].bloom > flowers[lof].bloom && flowers[f].wilt < flowers[hof].wilt)
-    //  sink (f, lo+1, hi-1);
-    // no overlapsl
-    
-    int lof = order.get(lo), hif = order.get(hi);
-    System.out.println(String.format("f = %s, lo = %s, hi = %s, f1 = %s f2 = %s f3 = %s",f, lo, hi,flowers[f], flowers[lof], flowers[hif]));
-    if ((flowers[f].height > flowers[hif].height
-          && (flowers[f].wilt < flowers[lof].bloom
-            || flowers[f].bloom > flowers[hif].wilt))
-        || flowers[f].height < flowers[lof].height
-          && !(flowers[f].wilt < flowers[lof].bloom
-            || flowers[f].bloom > flowers[hif].wilt))
+
+    Flower m = max[order.get(lo)];
+    Flower first = flowers[order.get(lo)];
+    //System.out.println(String.format("f = %s, lo = %s, n = %s m = %s",f, lo, n, m));
+    if ((n.height > m.height && (n.wilt < m.bloom || n.bloom > m.wilt))
+        || (n.height < first.height && !(n.wilt < first.bloom || n.bloom > first.wilt))) {
       order.add(lo, f);
-    // else if ((flowers[f].height < flowers[hif].height
-    //       && (flowers[f].wilt < flowers[lof].bloom
-    //         || flowers[f].bloom > flowers[hif].wilt))
-    //     || flowers[f].height > flowers[hif].height)
-    //   order.add(hi+1, f);
-    else sink(f, lo+1, hi);
-    //     || 
-    //     (flowers[f].height < flowers[lof].height 
-    //       && (flowers[f].bloom < flowers[lof].bloom 
-    //         && flowers[f].wilt >= flowers[lof].bloom
-    //         && flowers[f].wilt <= flowers[hif].wilt)
-    //       || (flowers[f].bloom == flowers[lof].bloom
-    //         && flowers[f].wilt == flowers[hif].wilt))
-    //   order.add(lo, f);
-    // else if (flowers[f].height < flowers[lof].height
-    //     && flowers[f].bloom > flowers[lof].bloom
-    //     && flowers[f].wilt == flowers[hif].wilt)
-    //   order.add(lo, f);
-    
-    // else if ((flowers[f].height < flowers[hif].height 
-    //     && flowers[f].bloom > flowers[hif].bloom 
-    //     && flowers[f].wilt > flowers[hif].wilt
-    //     && flowers[f].wilt > flowers[hif].bloom
-    //       
-    //       flowers[f].height > flowers[hif].height
-    //     && flowers[f].wilt >= flowers[hif].wilt 
-    //     && flowers[f].bloom >= flowers[hif].wilt)
-    //     ||
-    //   ()
-    //   order.add(hi+1, f);
-    //else if (flowers[f].height > flowers[order.get(hi)].height
-    //    && flowers[f].bloom <
-    //else
-    //  sink(f, lo+1, hi-1);
-    //System.out.println(String.format("Sinking: f = %s, f1 = %s f2 = %s",f,flowers[f], flowers[f+1]));
+      setMax(max[f], n, m);
+      return;
+    }
+   
+    //System.out.println("Sinking");
+    setMax(m, n, m);
+    sink(f, lo+1, N);
+  }
+
+  private void setMax(Flower c, Flower n, Flower m) {
+    c.height = Math.max(n.height, m.height);
+    c.bloom = Math.min(n.bloom, m.bloom);
+    c.wilt = Math.max(n.wilt, m.wilt);
   }
 }
