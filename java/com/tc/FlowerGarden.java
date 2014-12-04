@@ -34,28 +34,40 @@ public class FlowerGarden {
   }
 
   private Flower[] flowers;
-  private Flower[] max;
+  //private Flower[] max;
   //private Flower[] left;
   //private Flower[] right;
-  private Flower cmax;
+  //private Flower cmax;
   private List<Integer> order;
-  private Queue<Block> blocks;
+  //private Queue<Block> blocks;
+  private boolean[] marked;
+  private ArrayDeque<Integer> topo;
 
   public int[] getOrdering(int[] height, int[] bloom, int[] wilt) {
     int N = height.length;
     flowers = new Flower[N];
-    max = new Flower[N];
+    //max = new Flower[N];
     order = new ArrayList<Integer>(N);
-    cmax = new Flower(-1, 1000, -1);
-    blocks = new ArrayDeque<Block>();
-    
+    //cmax = new Flower(-1, 1000, -1);
+    //blocks = new ArrayDeque<Block>();
+    marked = new boolean[N];
+    topo = new ArrayDeque<Integer>();
+
     for (int i = 0; i < N; i++) {
       flowers[i] = new Flower(height[i], bloom[i], wilt[i]);
-      max[i] = new Flower(-1, 1000, -1);
+      //max[i] = new Flower(-1, 1000, -1);
     }
 
     for (int i = 0; i < N; i++) {
-      sink(i, 0, order.size());
+      if (!marked[i]) {   
+        dfs(flowers, i, N);
+        //while (!topo.isEmpty()) {
+        //  int o = topo.poll();
+        //  System.out.println(String.format("Adding to order: %s", o));
+        //  order.add(o);
+        //}
+      }
+      //sink(i, 0, order.size());
       //System.out.println("Maxes: ");
       //for (int j = 0; j < N; j++) {
         //if (max[j].height > -1) //System.out.println(String.format(" %s", max[j]));
@@ -63,9 +75,16 @@ public class FlowerGarden {
       //System.out.println("");
     }
 
-    int[] orderArr = new int[N];
-    for (int i = 0; i < N; i++)
-      orderArr[i] = flowers[order.get(i)].height;
+    int[] orderArr = new int[topo.size()];
+    int i = 0;
+    while (!topo.isEmpty()) {
+      int o = topo.pop();
+      //System.out.println(String.format("Adding to order: %s", o));
+      //order.add(o);
+      orderArr[i++] = flowers[o].height;
+    }
+    //for (int i = 0; i < N; i++)
+    //  orderArr[i] = flowers[order.get(i)].height;
     return orderArr;
   }
 
@@ -100,30 +119,21 @@ public class FlowerGarden {
   //   c.wilt = Math.max(n.wilt, m.wilt);
   // }
 
-  private int[] sort(int[] s, int lo, int hi) {
-    if (lo == hi) return new int[] { s[lo] };
-    int mid = (lo+hi) / 2;
-    return merge(sort(s, lo, mid), sort(s, mid+1, hi));
-  }
-
-  private int[] merge(int[] left, int[] right) {
-    int[] m = new int[left.length+right.length];
-    int i = 0
-      ,j = 0
-      ,k = 0;
-
-    while (i < left.length && j < right.length) {
-      if (i >= left.length) m[k++] = right[j++];
-      else if (j >= right.length) m[k++] = left[i++];
-      else if (less(flowers[left[i]], flowers[right[j]])) m[k++] = left[i++];
-      else m[k++] = right[j++];
+  private void dfs(Flower[] fl, int s, int N) {
+    marked[s] = true;
+    for (int v = 0; v < N; v++) {
+      if (marked[v]) continue;
+      if (s == v) continue;
+      if (fl[s].height < fl[v].height && overlaps(fl, s, v)) {
+        //System.out.println(String.format("DFS: %s", v));
+        dfs(fl, v, N);
+      }
     }
-
-    return m;
+    //System.out.println(String.format("Pushing to stack: %s", s));
+    topo.push(s);
   }
 
-  private boolean less(Flower m, Flower n) {
-    return ((m.height > n.height && (m.wilt < n.bloom || m.bloom > n.wilt)) 
-      || (m.height < n.height && !(m.wilt < n.bloom || m.bloom > n.wilt)));
+  private boolean overlaps(Flower[] fl, int s, int v) {
+    return !(fl[s].wilt < fl[v].bloom || fl[s].bloom > fl[v].wilt);
   }
 }
