@@ -88,13 +88,13 @@ public class FlowerGarden {
     if (ints.size() == 1) 
         merge(ints.poll(), b);
 
-    System.out.print("Order:");
-    for (Block p : parents) {
-        for (int j = p.first; j != -1; j = next[j]) {
-        System.out.print(String.format(" %s", flowers[j].height));
-      }
-    }
-    System.out.println("");
+    // System.out.print("Order:");
+    // for (Block p : parents) {
+    //     for (int j = p.first; j != -1; j = next[j]) {
+    //     System.out.print(String.format(" %s", flowers[j].height));
+    //   }
+    // }
+    // System.out.println("");
   }
 
   private Queue<Integer> findInt(int f) {
@@ -110,52 +110,38 @@ public class FlowerGarden {
       return ints;
     }
 
+    for (i = 0; i < N; i++) {
+      b1 = parents.get(i);
+    
       if (n.wilt < flowers[b1.left].bloom) {
         parents.add(i, new Block(f, f, f, f, n.height));
         ints.add(i);
-        break;
+        return ints;
       }
 
-      //System.out.println(String.format("Block: %s", b1));
-      if (i+1 == N
-        && !free(n, flowers[b1.left].bloom, flowers[b1.right].wilt)) {
-        ints.add(i);
-        break;
-      }
-    for (i = 0; i < N-1; i++) {
-      b1 = parents.get(i);
-    
-
-      if (i+1 < N) {
-        b2 = parents.get(i+1);
-
-        if (!free(n, flowers[b1.left].bloom, flowers[b1.right].wilt)) {
-          if (n.wilt > flowers[b1.right].wilt 
-            && n.wilt >= flowers[b2.left].bloom
-            && n.height > flowers[b2.left].height) {
-            ints.add(i+1);
-            ints.add(i);
-          } else { 
-            ints.add(i);
-            if (i > 0) ints.add(i-1);
+      if (!free(n, flowers[b1.left].bloom, flowers[b1.right].wilt)) {
+        if (i+1 == N) ints.add(i);
+        else {
+          b2 = parents.get(i+1);
+          if (!free(n, flowers[b1.left].bloom, flowers[b1.right].wilt)) {
+            if (n.wilt > flowers[b1.right].wilt 
+              && n.wilt >= flowers[b2.left].bloom
+              /*&& n.height > flowers[b2.left].height*/) {
+              ints.add(i+1);
+              ints.add(i);
+            } else { 
+              ints.add(i);
+              if (i > 0) ints.add(i-1);
+            }
           }
-          break;
         }
-
-        // if (n.bloom > flowers[b1.right].wilt
-        //   && n.wilt < flowers[b2.left].bloom) {
-        //   parents.add(i+1, new Block(f, f, f, f, n.height));
-        //   ints.add(i+1);
-        //   break;
-        // }
+        return ints;
       }
     }
 
-    if (i == N) {
-      parents.add(i, new Block(f, f, f, f, n.height));
-      ints.add(i);
-      ints.add(i-1);
-    }
+    parents.add(i, new Block(f, f, f, f, n.height));
+    ints.add(i);
+    ints.add(i-1);
 
     // System.out.print("Intervals:");
     // for (Integer j : ints)
@@ -177,16 +163,16 @@ public class FlowerGarden {
       //System.out.println(String.format("Before parenting: flowers[i] = %s, c = %s, parent = %s", flowers[i], c, parent));
       if (free(c, flowers[i]) && c.height > flowers[i].height && parent == -2) {
         parent = prev;
-        //System.out.println(String.format("Parenting 1: flowers[i] = %s, c = %s, parent = %s", flowers[i], c, parent));
+        System.out.println(String.format("Parenting 1: flowers[i] = %s, c = %s, parent = %s", flowers[i], c, parent));
       }
 
       if (!free(c, flowers[i])) { 
         if (c.height > flowers[i].height) { 
           parent = -2;
-          //System.out.println(String.format("Parenting 2: flowers[i] = %s, c = %s, parent = %s", flowers[i], c, parent));
+          System.out.println(String.format("Parenting 2: flowers[i] = %s, c = %s, parent = %s", flowers[i], c, parent));
         } else if (parent == -2) {
           parent = prev;
-          //System.out.println(String.format("Parenting 3: flowers[i] = %s, c = %s, parent = %s", flowers[i], c, parent));
+          System.out.println(String.format("Parenting 3: flowers[i] = %s, c = %s, parent = %s", flowers[i], c, parent));
           break;
         }
       }
