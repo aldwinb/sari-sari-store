@@ -67,8 +67,9 @@ public class FlowerGarden {
 
     int[] order = new int[N];
     int i = 0;
-    Queue<Block> orderedParents = new PriorityQueue<Block>(parents);
-    for (Block b : orderedParents) {
+    Queue<Block> parentsPq = new PriorityQueue<Block>(parents);
+    while (!parentsPq.isEmpty()) {
+      Block b  = parentsPq.poll();
       for (int j = b.first; j != -1; j = next[j]) {
         //System.out.println(String.format("next = %s", j));
         order[i++] = flowers[j].height;
@@ -86,6 +87,14 @@ public class FlowerGarden {
       insert(f, b);
     if (ints.size() == 1) 
         merge(ints.poll(), b);
+
+    System.out.print("Order:");
+    for (Block p : parents) {
+        for (int j = p.first; j != -1; j = next[j]) {
+        System.out.print(String.format(" %s", flowers[j].height));
+      }
+    }
+    System.out.println("");
   }
 
   private Queue<Integer> findInt(int f) {
@@ -101,22 +110,29 @@ public class FlowerGarden {
       return ints;
     }
 
-    for (i = 0; i < N; i++) {
-      b1 = parents.get(i);
-     
+      if (n.wilt < flowers[b1.left].bloom) {
+        parents.add(i, new Block(f, f, f, f, n.height));
+        ints.add(i);
+        break;
+      }
+
       //System.out.println(String.format("Block: %s", b1));
       if (i+1 == N
         && !free(n, flowers[b1.left].bloom, flowers[b1.right].wilt)) {
         ints.add(i);
         break;
       }
+    for (i = 0; i < N-1; i++) {
+      b1 = parents.get(i);
+    
 
       if (i+1 < N) {
         b2 = parents.get(i+1);
 
         if (!free(n, flowers[b1.left].bloom, flowers[b1.right].wilt)) {
           if (n.wilt > flowers[b1.right].wilt 
-            && !(n.wilt < flowers[b2.left].bloom)) {
+            && n.wilt >= flowers[b2.left].bloom
+            && n.height > flowers[b2.left].height) {
             ints.add(i+1);
             ints.add(i);
           } else { 
@@ -126,12 +142,12 @@ public class FlowerGarden {
           break;
         }
 
-        if (n.bloom > flowers[b1.right].wilt
-          && n.wilt < flowers[b2.left].bloom) {
-          parents.add(i+1, new Block(f, f, f, f, n.height));
-          ints.add(i+1);
-          break;
-        }
+        // if (n.bloom > flowers[b1.right].wilt
+        //   && n.wilt < flowers[b2.left].bloom) {
+        //   parents.add(i+1, new Block(f, f, f, f, n.height));
+        //   ints.add(i+1);
+        //   break;
+        // }
       }
     }
 
@@ -141,10 +157,10 @@ public class FlowerGarden {
       ints.add(i-1);
     }
 
-    //System.out.print("Intervals:");
-    //for (Integer j : ints)
-    //  System.out.print(String.format(" %s", j));
-    //System.out.println("");
+    // System.out.print("Intervals:");
+    // for (Integer j : ints)
+    //   System.out.print(String.format(" %s", parents.get(j)));
+    // System.out.println("");
     return ints;
   }
 
@@ -152,50 +168,47 @@ public class FlowerGarden {
     Flower c = flowers[f];
     Block block = parents.get(b);
     int prev = -1;
-    int parent = -1;
+    int parent = -2;
     int i = -1;
     int first = block.first;
     int last = block.last;
 
     for (i = first; i != -1; i = next[i]) {
-      System.out.println(String.format("flowers[i] = %s, c = %s", flowers[i], c));
-      if (c.height > flowers[i].height && free(c, flowers[i]) 
-          && prev != -1
-          && ((c.height > flowers[prev].height && !free(c, flowers[prev]))
-            || (c.height < flowers[prev].height && free(c, flowers[prev])))) parent = prev;
-      
-      //System.out.println(String.format("i = %s", i));
-      if (c.height < flowers[i].height && !free(c, flowers[i])) {
-        //System.out.println(String.format("Inserting 1: c = %s, prev = %s, parent = %s, f = %s, i = %s, block = %s", c, prev, parent, f, i, block));
-        //next[f] = i;
-        //if (prev != -1) next[prev] = f; 
-        //else first = f;
-        break;
+      //System.out.println(String.format("Before parenting: flowers[i] = %s, c = %s, parent = %s", flowers[i], c, parent));
+      if (free(c, flowers[i]) && c.height > flowers[i].height && parent == -2) {
+        parent = prev;
+        //System.out.println(String.format("Parenting 1: flowers[i] = %s, c = %s, parent = %s", flowers[i], c, parent));
       }
 
-      // if (c.height < flowers[i].height 
-      //   && !(c.wilt < flowers[i].bloom || c.bloom > flowers[i].wilt)) {
-      //   System.out.println(String.format("Inserting 2: c = %s, prev = %s, f = %s, i = %s", c, prev, f, i));
-      //   if (next[i] != -1) next[f] = next[next[i]];
-      //   next[i] = f;
-      //   break;
-      // }
+      if (!free(c, flowers[i])) { 
+        if (c.height > flowers[i].height) { 
+          parent = -2;
+          //System.out.println(String.format("Parenting 2: flowers[i] = %s, c = %s, parent = %s", flowers[i], c, parent));
+        } else if (parent == -2) {
+          parent = prev;
+          //System.out.println(String.format("Parenting 3: flowers[i] = %s, c = %s, parent = %s", flowers[i], c, parent));
+          break;
+        }
+      }
       prev = i;
     }
 
-    if (i == -1) {
-      if (parent != -1 && c.height > flowers[prev].height && free(c, flowers[prev])) {
-        System.out.println(String.format("Inserting 3: c = %s, prev = %s, parent = %s, f = %s, block = %s", c, prev, parent, f, block));
+    if (parent != -2) {
+      if (parent == -1) {
+        //System.out.println(String.format("Inserting 1: c = %s, prev = %s, parent = %s, f = %s, block = %s", c, prev, parent, f, block));
+        next[f] = first;
+        first = f;
+      } else {
+        //System.out.println(String.format("Inserting 2: c = %s, prev = %s, parent = %s, f = %s, block = %s", c, prev, parent, f, block));
         next[f] = next[parent];
         next[parent] = f;
-      } else {
-        System.out.println(String.format("Inserting 2: c = %s, prev = %s, parent = %s, f = %s, block = %s", c, prev, parent, f, block));
-        next[prev] = f;
-        last = f;
       }
     } else {
-    
+      //System.out.println(String.format("Inserting 3: c = %s, prev = %s, parent = %s, f = %s, block = %s", c, prev, parent, f, block));
+      next[prev] = f;
+      last = f;
     }
+
     updateBlock(block, first, f, f, last);
   }
 
