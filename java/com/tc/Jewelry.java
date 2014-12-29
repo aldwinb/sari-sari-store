@@ -41,8 +41,8 @@ public class Jewelry {
     //     System.out.print(String.format(" %s", v));
     //   System.out.println("");
     // }
-    return count();
-    // return 0;
+    // return count();
+    return 0;
   }
 
   private void calcSums() {
@@ -53,8 +53,9 @@ public class Jewelry {
       Arrays.sort(keySet);
       for (int j = keySet.length-1; j >= 0; j--) {
         int k = keySet[j];
+      //for (int k : keySet) {
         int sumKey = k+values[i];
-        if (sumKey > maxSum) maxSum = sumKey;
+        //if (sum > maxSum) maxSum = sum;
         if (!sums.containsKey(sumKey)) sums.put(sumKey, new Subseq(0, values.length));
         Subseq seq = sums.get(sumKey);
         if (k == 0) { 
@@ -64,6 +65,7 @@ public class Jewelry {
             seq.mins.put(values[i], val+1);
           }
         } else { 
+          //System.out.println(String.format("subseq = %s %s", sumKey, seq));
           seq.count++;
           Hashtable<Integer, Integer> mins = sums.get(k).mins;
           for (Integer k1 : mins.keySet()) {
@@ -73,28 +75,35 @@ public class Jewelry {
               seq.mins.put(k1, val+mins.get(k1));
             }
           }
+          //seq.mins = sums.get(k).mins;
         }
+        //List<Integer> lows1 = sums.get(k), lows2 = sums.get(sum);
+        //if (lows1 == Collections.EMPTY_LIST) lows2.add(values[i]);
+        //else for (Integer l: lows1) lows2.add(l);
       }
-      max[i] = maxSum;
-      for (Integer k : sums.keySet()) {
-        System.out.println(String.format("%s: %s", k, sums.get(k)));
-      }
-      System.out.println("");
+      //max[i] = maxSum;
+      // for (Integer k : sums.keySet()) {
+      //   System.out.println(String.format("%s: %s", k, sums.get(k)));
+      // }
+      // System.out.println("");
     }
+
+    //Set<Integer> keySet = (Set<Integer>)sums.keySet();
+    //for (int k : keySet) Collections.sort(sums.get(k));
   }
 
   private long count() {
     long c = 0;
     for (int i = 1; i < values.length; i++) {
-      int right = values[i];
-      for (int j = i; j >= 1 && max[j-1] >= right; j--) {
+      int right = 0;
+      for (int j = i; j >= 0 && max[j] >= right; j--) {
+        right += values[j];
         if (sums.containsKey(right)) {
-          Subseq seq = sums.get(right);
-          c += seq.count;
-          if (seq.mins.containsKey(right)) c += (seq.mins.get(right)-1);
-          System.out.println(String.format("j = %s, values[j] = %s, right = %s, max[j-1] = %s, c = %s", j, values[j], right, max[j-1], c));
+          List<Integer> lows = sums.get(right);
+          c += lows.size();
+          for (int k = lows.size()-1; k >= 0 && lows.get(k) >= right; k--)
+            if (lows.get(k) == values[j]) c++;
         }
-        right += values[j-1];
       }
     }
     return c;
