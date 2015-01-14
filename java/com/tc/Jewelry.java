@@ -1,111 +1,156 @@
 package com.tc;
 
 import java.util.*;
+import java.math.BigInteger;
 
 public class Jewelry {
-  private class Subseq {
-    int count;
-    Hashtable<Integer, Integer> mins;
+    private class Group {
+        public long key;
+        public long size;
+        public long nFact;
+        
+        public Group(long key, long size, long nFact) {
+            this.key = key;
+            this.size = size;
+            this.nFact = nFact;
+        }
+    }
     
-    public Subseq(int count, int minsSize) {
-      this.count = count;
-      mins = new Hashtable<Integer, Integer>(minsSize);
-      //Arrays.fill(mins, 0);
+    private List<Group> grps;
+    private List<Hashtable<Integer, Long>> seqs;
+    private long[][] combos;
+
+    public long howMany(int[] values) {
+        int N = values.length;
+        grps = new ArrayList<Group>();
+        seqs = new ArrayList<Hashtable<Integer, Long>>(N);
+        combos = new long[N+1][N+1];
+        
+        for (int i = 0; i < N; i++)
+            seqs.add(new Hashtable<Integer, Long>());
+        
+        Arrays.sort(values);
+        
+        calcSubs(values);
+        return 0;
     }
 
-    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append(String.format("count = %s, mins = ", count));
-      for (Integer k : ((Hashtable<Integer, Integer>)mins).keySet())
-        sb.append(String.format(" {%s,%s}", k, mins.get(k)));
-      return sb.toString();
-    }
-  }
-
-  private Hashtable<Integer, Subseq> sums;
-  private int[] max;
-  private int[] values;
-
-  public long howMany(int[] values) {
-    this.values = values;
-    sums = new Hashtable<Integer, Subseq>();
-    max = new int[values.length];
-    Arrays.sort(this.values);
-    //Arrays.fill(max, -1);
-    sums.put(0, new Subseq(0, 0));
-    calcSums();
-
-    // for (Integer k : sums.keySet()) {
-    //   System.out.print(String.format("%s:", k));
-    //   for (Integer v : sums.get(k))
-    //     System.out.print(String.format(" %s", v));
-    //   System.out.println("");
-    // }
-    // return count();
-    return 0;
-  }
-
-  private void calcSums() {
-    int maxSum = 0;
-    for (int i = 0; i < values.length; i++) {
-      Integer[] keySet = new Integer[sums.size()];
-      keySet = sums.keySet().toArray(keySet);
-      Arrays.sort(keySet);
-      for (int j = keySet.length-1; j >= 0; j--) {
-        int k = keySet[j];
-      //for (int k : keySet) {
-        int sumKey = k+values[i];
-        //if (sum > maxSum) maxSum = sum;
-        if (!sums.containsKey(sumKey)) sums.put(sumKey, new Subseq(0, values.length));
-        Subseq seq = sums.get(sumKey);
-        if (k == 0) { 
-          if (!seq.mins.containsKey(values[i])) seq.mins.put(values[i], 1);
-          else {
-            int val = seq.mins.remove(values[i]);
-            seq.mins.put(values[i], val+1);
-          }
-        } else { 
-          //System.out.println(String.format("subseq = %s %s", sumKey, seq));
-          seq.count++;
-          Hashtable<Integer, Integer> mins = sums.get(k).mins;
-          for (Integer k1 : mins.keySet()) {
-            if (!seq.mins.containsKey(k1)) seq.mins.put(k1, mins.get(k1));
-            else {
-              int val = seq.mins.remove(k1);
-              seq.mins.put(k1, val+mins.get(k1));
+    private void calcSubs(int[] values) {
+        int cval = values[0],
+            csize = 0,
+            i = 1,
+            N = values.length;
+        long count = 0;
+        
+        for (i = 1; i < N; i++) {
+            if (values[i] != cval) {
+                //calcSeqs(cval, i-csize);
+                count += countSame(cval, i-csize);
+                cval = values[i];
+                csize = i;
             }
-          }
-          //seq.mins = sums.get(k).mins;
         }
-        //List<Integer> lows1 = sums.get(k), lows2 = sums.get(sum);
-        //if (lows1 == Collections.EMPTY_LIST) lows2.add(values[i]);
-        //else for (Integer l: lows1) lows2.add(l);
-      }
-      //max[i] = maxSum;
-      // for (Integer k : sums.keySet()) {
-      //   System.out.println(String.format("%s: %s", k, sums.get(k)));
-      // }
-      // System.out.println("");
+        
+        //calcSeqs(cval, i-csize);
+        count += countSame(cval, i-csize);
     }
-
-    //Set<Integer> keySet = (Set<Integer>)sums.keySet();
-    //for (int k : keySet) Collections.sort(sums.get(k));
-  }
-
-  private long count() {
-    long c = 0;
-    for (int i = 1; i < values.length; i++) {
-      int right = 0;
-      for (int j = i; j >= 0 && max[j] >= right; j--) {
-        right += values[j];
-        if (sums.containsKey(right)) {
-          List<Integer> lows = sums.get(right);
-          c += lows.size();
-          for (int k = lows.size()-1; k >= 0 && lows.get(k) >= right; k--)
-            if (lows.get(k) == values[j]) c++;
+    
+    private void buildSeqs(int key, int size, int sidx) {
+        int seq = key;
+        for (int i = 2; i <= size+1; i++) {
+            long right = combo(size, i-1);
+            //System.out.println(String.format("left = %s", left));
+            //System.out.println(String.format("seq = %s, right = %s, size = %s", seq, right));
+            //count += left * right;
+            //if ()
+            //seqs.get(sidx+i-1).
+            seq = key*i;
         }
-      }
     }
-    return c;
-  }
+    
+    private long countSame(int key, int size) {
+        int seq = key,
+            maxseq = key*size;
+        long count = 0;
+        for (int i = 2; i <= size+1; i++) {
+            long left = combo(maxseq-seq, seq),
+                right = combo(size, i-1);
+            //System.out.println(String.format("left = %s", left));
+            System.out.println(String.format("seq = %s, right = %s", seq, right));
+            count += (left * right);
+            seq = key*i;
+        }
+        System.out.println(String.format("count = %s", count));
+        return count;
+    }
+    
+    private long combo(int n, int r) {
+        return (long)(fact(n) / (fact(r)*fact(n-r)));
+    }
+    
+    private BigInteger fact(int n) {
+        BigInteger f = new BigInteger("1");
+        for (int i = 2; i <= n; i++) f = f.multiply(new BigInteger(i));
+        System.out.println(String.format("n = %s, fact = %s", n, f));
+        return f;
+    }
+    
+    public static void main(String[] args) {
+        String[] s1 = args[0].split(",");
+        int[] values = new int[s1.length];
+        for (int i = 0; i < s1.length; i++) values[i] = Integer.parseInt(s1[i]);
+        long count = new Jewelry().howMany(values);
+        System.out.println(String.format("howMany = %s", count));
+    }
+    
+        
+    /*  
+    for (int i = 0; i < N+1; i++)
+        for (int j = 0; j < N+1; j++)
+            combos[i][j] = -1;
+    */  
+    
+    /*
+    calcSeqs(values);
+    for (int i = 0; i < N; i++) {
+        System.out.print(String.format("%s :", values[i]));
+        Hashtable<Integer, Long> s = seqs.get(i);
+        for (int k : s.keySet())
+            System.out.print(String.format(" %s,%s", k, s.get(k)));
+        System.out.println("");
+    }
+    */
+    
+    /*
+    private void calcSeqs(int[] values) {
+        //Hashtable<Integer, Long> seq = new Hashtable
+        seqs.get(0).put(values[0], (long)1);
+        for (int i = 1; i < values.length; i++) {
+            Hashtable<Integer, Long> prev = seqs.get(i-1),
+                curr = seqs.get(i);
+            for (int k : prev.keySet())
+                curr.put(k, prev.get(k));
+            for (int k : prev.keySet()) {
+                int nk = k+values[i];
+                long c = 0;
+                if (curr.containsKey(nk)) c = curr.remove(nk);
+                curr.put(nk, c+1);
+            }
+            int nk = values[i];
+            long c = 0;
+            if (curr.containsKey(nk)) c = curr.remove(nk);
+            curr.put(nk, c+1);
+        }
+    }
+    
+    private void calcSeqs(int key, int size) {
+        
+        for (int j = 1; j <= size; j++) {
+            int seq = key*j; 
+            long c = 0;
+            if (seqs.containsKey(seq)) c = seqs.remove(seq);
+            seqs.put(seq, c+combo(size, j));
+        }
+    }
+    */
 }
