@@ -5,33 +5,39 @@ public class Solution6 {
 		int i = 0,
 			j = -1,
 			start = 0,
-			end = 0;
-		boolean pal = false;
+			end = 0,
+			pstart = -1;
+		boolean pal = false
+		    ,odd = false;
 		
 		if (s.length() == 1) return s;
 		if (s.charAt(0) == s.charAt(1)) {
-			j = 0; pal = true;
+			j = 0; pstart = 1; pal = true;
 		}
 		
-		// 11222
+		// wmwbppbsooos
 		for (i = 2; i < s.length(); i++) {             
 			if (pal) {
-				if (j > 0 && s.charAt(i) == s.charAt( j-1)) j--;
-				else  if (s.charAt(i) != s.charAt(j)) {
+				if (j > 0 && s.charAt(i) == s.charAt(j-1)) j--;
+				else if (s.charAt(i) != s.charAt(j)
+				    /*|| (s.charAt(i) == s.charAt(j) && odd)*/
+				    ) {
+					System.out.println(String.format("j = %s, subs = %s", j, s.substring(j, i)));
 					if (i-j > end-start) { start = j; end = i; }
+					i = pstart+1;
 					j = -1;
 					pal = false;
 				}
-			} else {
+			}
+			if (!pal) {
 				if (s.charAt(i) == s.charAt(i-1)) {
-					j = i-1; pal = true;
+					j = i-1; pstart = i; pal = true;
 				} else if (s.charAt(i) == s.charAt(i-2)) {
-					j = i-2; pal = true;  
+					j = i-2; pstart = i; pal = true; odd = true;
 				}
 			}
 		}
 		
-		//System.out.println(String.format("i = %s, j = %s, start = %s, end = %s", i, j, start, end));
 		return j > -1 && i-j > end-start ? s.substring(j, i) : s.substring(start, end);
    	 }
     
