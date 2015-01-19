@@ -1,47 +1,54 @@
 package com.leetcode;
+   
+import java.util.*;
 
 public class Solution6 {
+    private class Palindrome implements Comparable<Palindrome> {
+        public int start;
+        public int end;
+
+        public Palindrome(int start, int end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        public int compareTo(Palindrome p) {
+            if (end-start > p.end-p.start) return -1;
+            if (end-start == p.end-p.start) return 0;
+            return 1;
+        }
+    }
+
 	public String longestPalindrome(String s) {
-		int i = 0,
-			j = -1,
-			start = 0,
-			end = 0,
-			pstart = -1;
-		boolean pal = false
-		    ,odd = false;
-		
-		if (s.length() == 1) return s;
-		if (s.charAt(0) == s.charAt(1)) {
-			j = 0; pstart = 1; pal = true;
-		}
-		
-		// wmwbppbsooos
-		for (i = 2; i < s.length(); i++) {             
-			if (pal) {
-				if (j > 0 && s.charAt(i) == s.charAt(j-1)) j--;
-				else if (s.charAt(i) != s.charAt(j)
-				    /*|| (s.charAt(i) == s.charAt(j) && odd)*/
-				    ) {
-					System.out.println(String.format("j = %s, subs = %s", j, s.substring(j, i)));
-					if (i-j > end-start) { start = j; end = i; }
-					i = pstart+1;
-					j = -1;
-					pal = false;
-				}
-			}
-			if (!pal) {
-				if (s.charAt(i) == s.charAt(i-1)) {
-					j = i-1; pstart = i; pal = true;
-				} else if (s.charAt(i) == s.charAt(i-2)) {
-					j = i-2; pstart = i; pal = true; odd = true;
-				}
-			}
-		}
-		
-		return j > -1 && i-j > end-start ? s.substring(j, i) : s.substring(start, end);
-   	 }
+		if (s.length() < 3) return s;
+
+        int l = (s.length()/2)-1,
+            r = l+1;
+        Queue<Palindrome> q = new PriorityQueue<Palindrome>();
+        Palindrome top = new Palindrome(0,0);
+
+        while (l >= 1 || r <= s.length()-1) {
+            q.add(search(s, l-1, l));
+            q.add(search(s, l-2, l));
+            q.add(search(s, r-1, r));
+            q.add(search(s, r-2, r));
+            top = q.peek();
+            if (top.end-top.start == s.length()) break;
+
+            l--; r++;
+        }
+
+        top = q.poll();
+        return s.substring(top.start, top.end);
+    }
+ 
+    private Palindrome search(String s, int i, int j) {
+        if (i < 0 || j >= s.length()) return new Palindrome(0,0);
+        for (;i >= 0 && j <= s.length()-1 && s.charAt(i) == s.charAt(j); i--, j++) {}
+        return new Palindrome(i+1,j);
+    }
     
-   	 public static void main(String[] args) {
-   	 	 System.out.println(new Solution6().longestPalindrome(args[0]));
-   	 }
+    public static void main(String[] args) {
+        System.out.println(new Solution6().longestPalindrome(args[0]));
+    }
 }

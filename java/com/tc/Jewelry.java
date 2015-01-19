@@ -22,17 +22,27 @@ public class Jewelry {
 
     public long howMany(int[] values) {
         int N = values.length;
-        grps = new ArrayList<Group>();
-        seqs = new ArrayList<Hashtable<Integer, Long>>(N);
-        combos = new long[N+1][N+1];
-        
-        for (int i = 0; i < N; i++)
-            seqs.add(new Hashtable<Integer, Long>());
-        
+        int max = 0;
         Arrays.sort(values);
-        
-        calcSubs(values);
+        for (int i = 0; i < N-1; i++)
+            max += values[i];
+
+        int[] waysLo = new int[max],
+            waysHi = new int[max];
+        Arrays.fill(waysLo, 0);
+        Arrays.fill(waysHi, 0);
+        for (int i = 0; i < N-1; i++) {
+            calcSums(waysLo, values, i);
+            calcSums(waysHi, values, i+1);
+            for (int
+        }
         return 0;
+    }
+
+    private void calcSums(int[] sums, int[] items, int start) {
+        for (int i = start; i < items.length; i++)
+            for (int j = sums.length-1; j > 0; j--)
+                sums[j] += sums[j-items[i]];
     }
 
     private void calcSubs(int[] values) {
@@ -75,7 +85,6 @@ public class Jewelry {
         for (int i = 2; i <= size+1; i++) {
             long left = combo(maxseq-seq, seq),
                 right = combo(size, i-1);
-            //System.out.println(String.format("left = %s", left));
             System.out.println(String.format("seq = %s, right = %s", seq, right));
             count += (left * right);
             seq = key*i;
@@ -85,13 +94,13 @@ public class Jewelry {
     }
     
     private long combo(int n, int r) {
-        return (long)(fact(n) / (fact(r)*fact(n-r)));
+        return fact(n) / (fact(r)*fact(n-r));
     }
     
-    private BigInteger fact(int n) {
-        BigInteger f = new BigInteger("1");
-        for (int i = 2; i <= n; i++) f = f.multiply(new BigInteger(i));
-        System.out.println(String.format("n = %s, fact = %s", n, f));
+    private long fact(int n) {
+        long f = 1;
+        for (int i = 2; i <= n; i++) f *= i;
+        //System.out.println(String.format("n = %s, fact = %s", n, f));
         return f;
     }
     
@@ -103,54 +112,4 @@ public class Jewelry {
         System.out.println(String.format("howMany = %s", count));
     }
     
-        
-    /*  
-    for (int i = 0; i < N+1; i++)
-        for (int j = 0; j < N+1; j++)
-            combos[i][j] = -1;
-    */  
-    
-    /*
-    calcSeqs(values);
-    for (int i = 0; i < N; i++) {
-        System.out.print(String.format("%s :", values[i]));
-        Hashtable<Integer, Long> s = seqs.get(i);
-        for (int k : s.keySet())
-            System.out.print(String.format(" %s,%s", k, s.get(k)));
-        System.out.println("");
-    }
-    */
-    
-    /*
-    private void calcSeqs(int[] values) {
-        //Hashtable<Integer, Long> seq = new Hashtable
-        seqs.get(0).put(values[0], (long)1);
-        for (int i = 1; i < values.length; i++) {
-            Hashtable<Integer, Long> prev = seqs.get(i-1),
-                curr = seqs.get(i);
-            for (int k : prev.keySet())
-                curr.put(k, prev.get(k));
-            for (int k : prev.keySet()) {
-                int nk = k+values[i];
-                long c = 0;
-                if (curr.containsKey(nk)) c = curr.remove(nk);
-                curr.put(nk, c+1);
-            }
-            int nk = values[i];
-            long c = 0;
-            if (curr.containsKey(nk)) c = curr.remove(nk);
-            curr.put(nk, c+1);
-        }
-    }
-    
-    private void calcSeqs(int key, int size) {
-        
-        for (int j = 1; j <= size; j++) {
-            int seq = key*j; 
-            long c = 0;
-            if (seqs.containsKey(seq)) c = seqs.remove(seq);
-            seqs.put(seq, c+combo(size, j));
-        }
-    }
-    */
 }
