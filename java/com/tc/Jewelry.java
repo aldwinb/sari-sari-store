@@ -1,109 +1,123 @@
 package com.tc;
 
 import java.util.*;
-import java.math.BigInteger;
 
 public class Jewelry {
     private class Group {
-        public long key;
-        public long size;
-        public long nFact;
-        
-        public Group(long key, long size, long nFact) {
+        public int key;
+        public int size;
+        public Group(int key, int size) {
             this.key = key;
             this.size = size;
-            this.nFact = nFact;
         }
     }
     
-    private List<Group> grps;
-    private List<Hashtable<Integer, Long>> seqs;
-    private long[][] combos;
-
     public long howMany(int[] values) {
         int N = values.length;
         int max = 0;
         Arrays.sort(values);
         for (int i = 0; i < N-1; i++)
             max += values[i];
+        
+        List<Group> G = groups(values);
 
-        int[] waysLo = new int[max],
-            waysHi = new int[max];
+        int[] waysLo = new int[max+1],
+            waysHi = new int[max+1];
         Arrays.fill(waysLo, 0);
         Arrays.fill(waysHi, 0);
-        for (int i = 0; i < N-1; i++) {
-            calcSums(waysLo, values, i);
-            calcSums(waysHi, values, i+1);
-            for (int
-        }
-        return 0;
-    }
+        waysLo[0] = waysHi[0] = 1;
 
-    private void calcSums(int[] sums, int[] items, int start) {
-        for (int i = start; i < items.length; i++)
-            for (int j = sums.length-1; j > 0; j--)
-                sums[j] += sums[j-items[i]];
-    }
+        for (Group g : G)
+            addWays(waysHi, g);
 
-    private void calcSubs(int[] values) {
-        int cval = values[0],
-            csize = 0,
-            i = 1,
-            N = values.length;
+        /*
+        System.out.print("fu =");
+        for (int j = 1; j < waysHi.length; j++)
+            System.out.print(String.format(" %s", waysHi[j] == 0 ? "." : waysHi[j]));
+        System.out.println("");
+        System.out.println("");
+        */
         long count = 0;
-        
-        for (i = 1; i < N; i++) {
-            if (values[i] != cval) {
-                //calcSeqs(cval, i-csize);
-                count += countSame(cval, i-csize);
-                cval = values[i];
-                csize = i;
+        for (Group g : G) {
+            addWays(waysLo, g);
+            subWays(waysHi, g);
+            
+            System.out.print("lo =");
+            for (int j = 1; j < waysLo.length; j++)
+                System.out.print(String.format(" %s", waysLo[j] == 0 ? "." : waysLo[j]));
+            System.out.println("");
+            System.out.print("hi =");
+            for (int j = 1; j < waysHi.length; j++)
+                System.out.print(String.format(" %s", waysHi[j] == 0 ? "." : waysHi[j]));
+            System.out.println("");
+            
+            for (int i = 1; i <= g.size; i++) {
+                int elem = g.key*i;
+                long c = combo(g.size, elem);
+                count += combo(g.size-i, elem) * c;
+                System.out.println(String.format("elem = %s, count(1) = %s", elem, count));
+                for (int j = elem; j <= max; j++)
+                    count += waysLo[j] * waysHi[j];
+                System.out.println(String.format("elem = %s, count(2) = %s", elem, count));
             }
+            System.out.println("");
         }
-        
-        //calcSeqs(cval, i-csize);
-        count += countSame(cval, i-csize);
-    }
-    
-    private void buildSeqs(int key, int size, int sidx) {
-        int seq = key;
-        for (int i = 2; i <= size+1; i++) {
-            long right = combo(size, i-1);
-            //System.out.println(String.format("left = %s", left));
-            //System.out.println(String.format("seq = %s, right = %s, size = %s", seq, right));
-            //count += left * right;
-            //if ()
-            //seqs.get(sidx+i-1).
-            seq = key*i;
-        }
-    }
-    
-    private long countSame(int key, int size) {
-        int seq = key,
-            maxseq = key*size;
-        long count = 0;
-        for (int i = 2; i <= size+1; i++) {
-            long left = combo(maxseq-seq, seq),
-                right = combo(size, i-1);
-            System.out.println(String.format("seq = %s, right = %s", seq, right));
-            count += (left * right);
-            seq = key*i;
-        }
-        System.out.println(String.format("count = %s", count));
+
         return count;
     }
-    
+
+    private List<Group> groups(int[] values) {
+        int size = 0,
+            g = 0;
+        List<Group> G = new ArrayList<Group>();
+        for (g = 1; g < values.length; g++) {
+            if (values[g] != values[g-1]) {
+                G.add(new Group(values[g-1], g-size));
+                size = g;
+            }
+        }
+        G.add(new Group(values[g-1], g-size));
+        return G;
+    }
+
+    private void addWays(int[] sums, Group g) {
+        for (int i = 1; i <= g.size; i++)
+            addWay(sums, g.key);
+            // System.out.println(String.format("key = %s, size = %s", g.key, g.size));
+            // for (int i = 1; i <= g.size; i++)
+            //    addWay(sums, g.key*i); 
+    }
+
+    private void subWays(int[] sums, Group g) {
+        for (int i = 1; i <= g.size; i++)
+            subtractWay(sums, g.key);
+    }
+
+    private void addWay(int[] sums, int item) {
+        for (int j = sums.length-1; j >= item; j--)
+            sums[j] += sums[j-item];
+        // System.out.print("fu =");
+        // for (int j = 1; j < sums.length; j++)
+        //     System.out.print(String.format(" %s", sums[j] == 0 ? "." : sums[j]));
+        // System.out.println("");
+        // System.out.println("");
+    }
+
+    private void subtractWay(int[] sums, int item) {
+        for (int j = item; j < sums.length; j++)
+            sums[j] -= sums[j-item];
+    }
+   
     private long combo(int n, int r) {
-        return fact(n) / (fact(r)*fact(n-r));
+        long num = 1,
+            den = 1;
+        if (r > n) return 0;
+        for (int j = 1, k = n; j <= r && k > r; j++, k--) {
+            num *= k; den *= j;
+        }
+        return num / den;
     }
-    
-    private long fact(int n) {
-        long f = 1;
-        for (int i = 2; i <= n; i++) f *= i;
-        //System.out.println(String.format("n = %s, fact = %s", n, f));
-        return f;
-    }
-    
+       
     public static void main(String[] args) {
         String[] s1 = args[0].split(",");
         int[] values = new int[s1.length];
