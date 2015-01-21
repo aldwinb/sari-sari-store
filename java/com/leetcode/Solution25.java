@@ -9,29 +9,34 @@ public class Solution25 {
     int ctr;
 
     public ListNode reverseKGroup(ListNode head, int k) {
+        if (k <= 1 || head == null) return head;
+
         ctr = 1;
-        tail = curr = head;
+        khead = tail = curr = head;
         next = curr.next;
-        while (ctr < k) {
+        while (ctr < k && next != null) {
             move();
             ctr++;
             switchLink();
         }
 
-        head = curr;
-        kheadTo(next);
-
+        if (ctr == k) head = curr;
+        if (next != null) {
+            move();
+            ctr++;
+            kheadTo(curr);
+        }
+        
         while (next != null) {
             move();
             ctr++;
             if (ctr % k != 1) switchLink();
             else {
-                if (ctr / k == 2) tailTo(prev); 
+                tailNextTo(prev); 
                 kheadTo(curr);
             }
         }
 
-        System.out.println(String.format("ctr = %s, curr = %s", ctr, curr.val));
         if (ctr % k != 0) {
             kheadTo(curr);
             next = prev;
@@ -39,10 +44,9 @@ public class Solution25 {
                 move();
                 ctr--;
                 switchLink();
-                //System.out.println(String.format("ctr = %s, curr = %s, next = %s", ctr, curr.val, next.val));
             }
         }
-        tailTo(curr);
+        tailNextTo(curr);
         tail.next = null;
 
         return head;
@@ -62,8 +66,8 @@ public class Solution25 {
         khead = n; 
     }
 
-    private void tailTo(ListNode n) {
-        tail.next = n;
+    private void tailNextTo(ListNode n) {
+        if (tail != n) tail.next = n;
         tail = khead;
         ctr = 1;
     }
@@ -82,6 +86,7 @@ public class Solution25 {
     }
     
     private static ListNode convert(String s) {
+        if (s.length() == 0) return null;
         String[] strArr = s.split(",");
         ListNode node = new ListNode(Integer.parseInt(String.valueOf(strArr[0])));
         ListNode tmp = node;
