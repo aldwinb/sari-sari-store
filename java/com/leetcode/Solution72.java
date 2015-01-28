@@ -13,16 +13,14 @@ public class Solution72 {
     }
 
     private int compare(String p, String t, int i, int j) {
-        if (i == -1) return 0;
-        if (j == -1) return 0;
+        if (i == -1) return j+1;
+        if (j == -1) return i+1;
         if (dist[i][j] != Integer.MAX_VALUE) return dist[i][j];
 
         int cost = Math.min(
             compare(p, t, i-1, j-1) + match(p.charAt(i), t.charAt(j)), 
-            //compare(p, t, i-1, j) + 1); 
             Math.min(compare(p, t, i, j-1), compare(p, t, i-1, j)) + 1);
         
-        System.out.println(String.format("p[i] = %s, t[j] = %s, i = %s, j = %s, cost = %s", p.charAt(i), t.charAt(j), i, j, cost));
         dist[i][j] = cost;
         return cost;
     }

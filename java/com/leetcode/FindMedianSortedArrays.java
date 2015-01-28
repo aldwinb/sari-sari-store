@@ -18,7 +18,6 @@ public class FindMedianSortedArrays {
       k++;
     }
 
-    //System.out.println(String.format("A.length = %s, mid = %s, k = %s, j = %s", A.length, mid, k, j));
     if (k <= mid-1) {
       if (i == A.length) j += mid-1-k;
       else i += mid-1-k;
@@ -27,7 +26,6 @@ public class FindMedianSortedArrays {
     }
     if (k == mid) m2 = i == A.length ? B[j] : A[i];
 
-    //System.out.println(String.format("m1 = %s, m2 = %s", m1, m2));
     return N % 2 == 0 ? (m1+m2)/2.0 : m2;
   }
 
