@@ -34,7 +34,6 @@ public class Solution6 {
             q.add(search(s, r-2, r));
             top = q.peek();
             if (top.end-top.start == s.length()) break;
-
             l--; r++;
         }
 

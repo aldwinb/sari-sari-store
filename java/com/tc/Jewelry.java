@@ -44,7 +44,7 @@ public class Jewelry {
                 c2 = 1;
             for (int i = 1; i <= g.size; i++) {
 
-                /*
+                
                 System.out.print("c  =");
                 for (int j = 1; j < waysLo.length; j++)
                     System.out.print(String.format(" %s", waysLo[j] == 0 ? "." : waysLo[j]));
@@ -53,7 +53,7 @@ public class Jewelry {
                 for (int j = 1; j < waysHi.length; j++)
                     System.out.print(String.format(" %s", waysHi[j] == 0 ? "." : waysHi[j]));
                 System.out.println("");
-                */
+                
 
                 int elem = g.key*i;
                 if (c2 != 0) {
@@ -64,10 +64,10 @@ public class Jewelry {
                     // System.out.println(String.format("elem = %s, count(1) = %s", elem, count));
                 }
                 for (int j = elem; j <= max; j++) {
-                    //System.out.println(String.format("elem = %s, c2 = %s, j = %s, waysLo[j] = %s, waysHi[j] = %s", elem, c2, j, waysLo[j-elem], waysHi[j]));
+                    System.out.println(String.format("elem = %s, c2 = %s, j = %s, waysLo[j] = %s, waysHi[j] = %s", elem, c2, j, waysLo[j-elem], waysHi[j]));
                     count += c2 * waysLo[j-elem] * waysHi[j];
                 }
-                //System.out.println(String.format("count(2) = %s", count));
+                System.out.println(String.format("count(2) = %s", count));
                 
             }
 
