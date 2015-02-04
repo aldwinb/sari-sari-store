@@ -14,35 +14,53 @@ public class Solution124 {
     }
 
     public int maxPathSum(TreeNode root) {
-        return maxSum(root).val;
+        SumNode n = maxSums(root);
+        return Math.max(n.val, n.dcval);
     }
 
     private SumNode maxSums(TreeNode x) {
         if (x == null) return null;
         
-        SumNode less = maxSum(x.left),
-            more = maxSum(x.right),
+        SumNode l = maxSums(x.left),
+            m = maxSums(x.right),
             mid = new SumNode(x.val, Integer.MIN_VALUE);
-      
-        if (less == null && more == null) return mid;
-        if (less == null) return choose(more, mid);
-        if (more == null) return choose(less, mid);
+     
+        if (l == null && m == null) return mid;
+        if (l == null) return maxNode(mid, m);
+        if (m == null) return maxNode(mid, l);
+
+        int val = getVal(mid.val, 
+            Math.max(l.val, m.val));
+        int dcval = getDcval(mid.val, 
+            Math.max(l.val, m.val),
+            Math.min(l.val, m.val),
+            Math.max(l.dcval, m.dcval));
+
+        //System.out.println(String.format("val = %s, dcval = %s", val, dcval));
+        return new SumNode(val, dcval);
     }
 
-
-    private int getVal(SumNode p, SumNode more, SumNode less, int mval) {
-        int dcval = p.val+more.val+less.val;
-        if (dcval > mval && dcval > p.val)
-            return dcval;
-        return getDcVal(p, more, mval);
+    private SumNode maxNode(SumNode p, SumNode c1) {
+        return new SumNode(getVal(p.val, c1.val), getDcval(p.val, c1.val, c1.dcval));
     }
 
-    private int getVal(SumNode p, SumNode c1, int cval) {
-        int dcval = p.val+c1.val;
-        if (dcval > cval && dcval > p.val) return dcval;
-        return Math.max(p.val, c1.dcval);
+    private int getDcval(int pval, int mval, int lval, int cmpval) {
+        int sum = pval+mval+lval;
+        if (sum > cmpval && sum > pval) return sum;
+        return getDcval(pval, mval, cmpval);
     }
 
+    private int getDcval(int pval, int mval, int cmpval) {
+        int sum = pval+mval;
+        if (sum > cmpval && sum > pval) return sum;
+        return Math.max(pval, Math.max(mval, cmpval));
+    }
+
+    private int getVal(int pval, int mval) {
+        return Math.max(pval+mval, pval);
+    }
+
+    /*
     private SumNode maxSum(TreeNode x) {
         if (x == null) return null;
         SumNode less = maxSum(x.left),
@@ -100,6 +118,7 @@ public class Solution124 {
     private SumNode greater(SumNode s1, SumNode s2) {
         return s1.val >= s2.val ? s1 : s2;
     }
+    */
 
     public static void main(String[] args) {
         String[] s = args[0].split(",");
@@ -123,7 +142,6 @@ public class Solution124 {
             for (int i = 3; i < s.length; i += 2) {
                 TreeNode parent = nodes.get((i+1)/2),
                     node = null;
-                //System.out.println(String.format("parent = %s, s[i] = %s", parent == null ? "#" : parent.val, s[i]));
                 if (s[i].compareTo("#") != 0) {
                     node = new TreeNode(Integer.parseInt(s[i]));
                     parent.left = node;
@@ -145,13 +163,11 @@ public class Solution124 {
     private static void print(TreeNode x, int lvl) {
         for (int i = 0; i < lvl; i++)
             System.out.print("-");
-        System.out.println(String.format("%s", x.val));
+        System.out.println(String.format(" %s", x.val));
         if (x.left != null) {
-            //System.out.print("--L-->"); 
             print(x.left, lvl+1);
         }
         if (x.right != null) {
-            //System.out.print("--R-->"); 
             print(x.right, lvl+1);
         }
     }
