@@ -3,38 +3,50 @@ package com.tc;
 import java.util.*;
 
 public class DivisorInc {
+    private class Node {
+        int val;
+        int lvl;
+        public Node(int val, int lvl) {
+            this.val = val;
+            this.lvl = lvl;
+        }
+    }
+
     public int countOperations(int N, int M) {
         if (N == M) return 0;
         int lvl = 0;
         boolean found = false;
         
-        boolean[] marked = new boolean[100000];
-        for (int i = 0; i < 100000; i++)
+        boolean[] marked = new boolean[M];
+        for (int i = 0; i < M; i++)
             marked[i] = false;
 
-        Queue<Integer> q = new ArrayDeque<Integer>();
-        q.add(N);
+        Queue<Node> q = new ArrayDeque<Node>();
+        q.add(new Node(N, 0));
         while (!q.isEmpty() && !found) {
-            int v = q.poll();
+            Node v = q.poll();
             List<Integer> adj = new ArrayList<Integer>();
-            for (int i = 2; i <= v/2; i++) {
-                if (v % i == 0) 
-                    adj.add(v+(v/i));
+            for (int i = 2; i <= v.val/2; i++) {
+                if (v.val % i == 0) { 
+                    int a = v.val+(v.val/i);
+                    if (a <= M) adj.add(a);
+                }
             }
             for (int w : adj) {
-                //System.out.println(String.format("v = %s, adj = %s", v, w));
+                //System.out.println(String.format("v= %s, adj = %s, lvl = %s", v.val, w, v.lvl));
                 if (w == M) {
                     found = true;
+                    lvl = v.lvl;
                     break;
                 }
                 if (!marked[w]) {
-                    q.add(w);
+                    q.add(new Node(w, v.lvl+1));
                     marked[w] = true;
                 }
             }
-            if (adj.size() > 0) lvl++;
         }
-        return lvl;
+        if (!found) return -1;
+        return lvl+1;
     }
 
     public static void main(String[] args) {
