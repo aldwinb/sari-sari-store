@@ -3,89 +3,63 @@ package com.tc;
 import java.util.*;
 
 public class DivisorInc {
-    private class Node {
-        int val;
-        int lvl;
-        public Node(int val, int lvl) {
-            this.val = val;
-            this.lvl = lvl;
-        }
-    }
-
     public int countOperations(int N, int M) {
         if (N == M) return 0;
-        int lvl = 0;
-        boolean found = false;
-        
+        boolean found = false; 
         boolean[] marked = new boolean[M];
-        for (int i = 0; i < M; i++)
-            marked[i] = false;
-
-        Queue<Node> q = new ArrayDeque<Node>();
-        q.add(new Node(N, 0));
+        int[] path = new int[M+1];
+        
+        Arrays.fill(marked, false);
+        Arrays.fill(path, -1);
+        Queue<Integer> q = new ArrayDeque<Integer>();
+        q.add(N);
         while (!q.isEmpty() && !found) {
-            Node v = q.poll();
-            List<Integer> adj = new ArrayList<Integer>();
-            for (int i = 2; i <= v.val/2; i++) {
-                if (v.val % i == 0) { 
-                    int a = v.val+(v.val/i);
-                    if (a <= M) adj.add(a);
-                }
-            }
+            int v = q.poll();
+            List<Integer> adj = getAdj(v, M);
             for (int w : adj) {
-                //System.out.println(String.format("v= %s, adj = %s, lvl = %s", v.val, w, v.lvl));
+                System.out.println(String.format("v = %s, adj = %s", v, w));
                 if (w == M) {
+                    path[M] = v;
                     found = true;
-                    lvl = v.lvl;
                     break;
                 }
                 if (!marked[w]) {
-                    q.add(new Node(w, v.lvl+1));
+                    q.add(w);
+                    path[w] = v;
                     marked[w] = true;
                 }
             }
         }
-        if (!found) return -1;
-        return lvl+1;
+        int j = 0;
+        for (int i = M; path[i] != -1; i = path[i], j++);
+        return j == 0 ? -1 : j;
+
     }
 
-    public static void main(String[] args) {
-        System.out.println(String.format("count = %s",
-            new DivisorInc().countOperations(
-                Integer.parseInt(args[0]),
-                Integer.parseInt(args[1]))));
+    private List<Integer> getAdj(int v, int M) {
+        List<Integer> adj = new ArrayList<Integer>();
+        for (int i = 2; i <= v/2; i++) {
+            if (v % i == 0) {
+                int a = v+(v/i);
+                if (a <= M) adj.add(a);
+            }
+        }
+        return adj;
+    }
+
+    private boolean[] sieve(int n) {
+        boolean[] prime = new boolean[n+1];
+        Arrays.fill(prime, true);
+        prime[0] = false;
+        prime[1] = false;
+
+        for (int i = 2; i <= n; i++)
+            if (prime[i])
+                for (int k = i*i; k <= n; k += i)
+                    prime[k] = false;
     }
 
     /*
-  private int dfs(int v, int N, int level) {
-    marked.add(v);
-    int returnLevel = -1;
-
-    int d = ld(v);
-    if (d == -1) return -1;
-
-    int hid = v / d;
-    while (returnLevel == -1 && d != -1) {
-      int q = v / d;      
-      System.out.println(String.format("v = %s, d = %s, q = %s, N = %s, level = %s", v, d, q, N, level));
-      if (q+v == N || d+v == N) {
-        //System.out.println("Equals");
-        return level;
-      } else if (v+d < N && N < q+v) {
-        //System.out.println("Search");
-        return search(v+d, q+v, v, N) ? level : -1;
-      } else if (N > q+v) {
-          if (!marked.contains(q+v))
-            returnLevel = dfs(q+v, N, level+1);
-      }
-
-      if (returnLevel == -1)
-        d = nextd(v, d+1, hid);
-    }
-
-    return returnLevel;  
-  }
-
     private int ld(int v) {
         if (v % 2 == 0) return 2;
         if (v % 3 == 0) return 3;
@@ -95,19 +69,14 @@ public class DivisorInc {
         }
         return -1;
     }
-
-  private int nextd(int v, int d, int hid) {
-    while (v % d != 0 && d <= hid) {
-      d++;
-    }
-    return d > hid ? -1 : d;
-  }
-
-  private boolean search(int lo, int hi, int v, int N) {
-    int mid = (lo + hi) / 2;
-    if (N > mid) return search(mid+1, hi, v, N);
-    if (N < mid) return search(lo, mid-1, v, N);
-    return v % (N-v) == 0;
-  }
     */
+
+
+    public static void main(String[] args) {
+        System.out.println(String.format("count = %s",
+            new DivisorInc().countOperations(
+                Integer.parseInt(args[0]),
+                Integer.parseInt(args[1]))));
+    }
+
 }
