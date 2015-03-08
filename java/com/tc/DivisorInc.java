@@ -4,30 +4,31 @@ import java.util.*;
 
 public class DivisorInc {
     public int countOperations(int N, int M) {
-        if (N == M) return 0;
-        boolean found = false; 
-        boolean[] marked = new boolean[M];
-        int[] path = new int[M+1];
         
-        boolean[] primes = sieve(M);
-        Arrays.fill(marked, false);
+        if (N == M) return 0;
+       
+        boolean found = false;
+        int[] path = new int[M+1];
+        boolean[] inQ = new boolean[M+1];
         Arrays.fill(path, -1);
+        Arrays.fill(inQ, false);
+        
         Queue<Integer> q = new ArrayDeque<Integer>();
         q.add(N);
+
         while (!q.isEmpty() && !found) {
             int v = q.poll();
-            List<Integer> adj = getAdj(v, M, primes);
+            Iterable<Integer> adj = adj(v, M);
             for (int w : adj) {
-                //System.out.println(String.format("v = %s, adj = %s", v, w));
                 if (w == M) {
                     path[M] = v;
                     found = true;
                     break;
                 }
-                if (!marked[w]) {
-                    q.add(w);
+                if (!inQ[w]) {
                     path[w] = v;
-                    marked[w] = true;
+                    q.add(w);
+                    inQ[w] = true;
                 }
             }
         }
@@ -36,41 +37,28 @@ public class DivisorInc {
         return j == 0 ? -1 : j;
     }
 
-    private List<Integer> getAdj(int v, int M, boolean[] prime) {
-        List<Integer> primes = getPrimeFactors(prime, v);
+    private Iterable<Integer> adj(int v, int M) {
         List<Integer> adj = new ArrayList<Integer>();
-        for (int p : primes) {
-            for (int i = 1; p*i <= v/2; i++) {
-                if (v % (p*i) == 0) {
-                    int a = v+(v/(p*i));
-                    if (a <= M) adj.add(a);
-                }
-            }
+        Iterable<Integer> factors = getFactors(v);
+        for (int f : factors) {
+            int w = v+f;
+            if (w <= M) 
+                adj.add(w);
         }
         return adj;
     }
 
-    private List<Integer> getPrimeFactors(boolean[] prime, int v) {
-        List<Integer> primes = new ArrayList<Integer>();
-        for (int i = 2; i <= v/2; i++)
-            if (prime[i] && v % i == 0)
-                primes.add(i);
-        return primes;
+    private Iterable<Integer> getFactors(int v) {
+        int sqrt = (int)Math.round(Math.sqrt(v));
+        Set<Integer> set = new HashSet<Integer>();
+        for (int i = 2; i <= sqrt; i++)
+            if (v % i == 0) {
+                set.add(v/i);
+                set.add(i);
+            }
+        return set;
     }
 
-    private boolean[] sieve(int n) {
-        boolean[] prime = new boolean[n+1];
-        Arrays.fill(prime, true);
-        prime[0] = false;
-        prime[1] = false;
-        for (int i = 2; i <= n/2; i++)
-            if (prime[i])
-                for (int k = i*i; k > 2 && k <= n; k += i)
-                    //System.out.println(String.format("i = %s, k = %s", i, k));
-                    prime[k] = false;
-        return prime;
-    }
-    
     public static void main(String[] args) {
         System.out.println(String.format("count = %s",
             new DivisorInc().countOperations(

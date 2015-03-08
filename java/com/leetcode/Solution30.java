@@ -3,64 +3,67 @@ package com.leetcode;
 import java.util.*;
 
 public class Solution30 {
+    private class Node {
+        char c;
+        int val;
+        Node[] links;
+        public Node() {
+            val = 0;
+            links = new Node[256];
+        }
+        public Node(char c) {
+            this();
+            this.c = c;
+        }
+    }
+
+    private Node root;
+
+    public String get(String key) {
+        if (key == null || key.length() < 0) return key;
+        if (get(root, key, 0))
+            return key;
+        return "";
+    }
+
+    private boolean get(Node x, String key, int d) {
+        if (x == null) return false;
+        char c = key.charAt(d);
+        if (c < x.c) return get(x.left, key, d);
+        if (c > x.c) return get(x.right, key, d);
+        if (d < key.length()-1) return get(x.mid, key, d+1);
+        return x.val != -1;
+    }
+
+    public void add(String key) {
+        root = add(root, key, 0);
+    }
+
+    public Node add(Node x, String key, int d) {
+        char c = key.charAt(d);
+        if (x == null) x = new Node(c);
+        if (c > x.c) x.right = add(x.right, key, d);
+        else if (c < x.c) x.left = add(x.left, key, d);
+        else if (d < key.length()-1) x.mid = add(x.mid, key, d+1);
+        else x.val = 1;
+        return x;
+    }
     public List<Integer> findSubstring(String S, String[] L) {
         if (L == null || L.length == 0
             || S == null || S.length() == 0) return new ArrayList<Integer>();
   
-        Map<String, Integer> c = getCounts(L);
-        int n = L[0].length();
         List<Integer> idxs = new ArrayList<Integer>();
-        for (int i = 0; i+L.length <= S.length(); i++) {
-            Queue<String> q = queueMatches(S,i,n,c);
-            //System.out.format("q.size = %s\n", q.size());
-            if (q.size() == L.length) idxs.add(i);
-            putBack(q,c);
-        }
         return idxs;
     }
 
-    private void putBack(Queue<String> q, Map<String,Integer> c) {
-        while (!q.isEmpty()) {
-            String s2 = q.poll();
-            c.put(s2, c.remove(s2)+1);
+    private long hash(String key, int R, int Q, int M) {
+        long h = 0;
+        for (int i = 0; i < M; i++) {
+            h = (R*h + key.charAt(i)) % Q;
         }
     }
 
-    private Queue<String> queueMatches(String S, 
-        int i, 
-        int n,
-        Map<String,Integer> c) {
-        Queue<String> q = new LinkedList<String>();
-        int j = i,
-            m = S.length();
-        if (j+n > m) return q;
-        String s1 = S.substring(j,j+n);
-        while (c.containsKey(s1) && c.get(s1) > 0) {
-            q.add(s1);
-            c.put(s1, c.remove(s1)-1);
-            j += n;
-            //System.out.format("j = %s\n", j);
-            if (j+n > m) break;
-            s1 = S.substring(j,j+n);
-        }
-        return q;
-    }
-
-    private Map<String, Integer> getCounts(String[] L) {
-        Map<String, Integer> c = new HashMap<String, Integer>();
-        for (String l : L) {
-            if (!c.containsKey(l))
-                c.put(l,0);
-            c.put(l, c.remove(l)+1);
-        }
-        return c;
-    }
-
-    public static void main(String[] args) {
-        List<Integer> idxs = new Solution30().findSubstring(args[0], args[1].split(","));
-        if (idxs.size() == 0) return;
-        for (int i : idxs)
-            System.out.format("%s,", i);
-        System.out.println("");
+    private static void Main() {
+        
     }
 }

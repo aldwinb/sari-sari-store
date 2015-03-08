@@ -27,23 +27,39 @@ public class Solution115 {
         int[] subs = subseqs(T.charAt(0), S),
             dp = new int[subs.length];
         Arrays.fill(dp, 0);
-        int n = 0;
-        for (int i = 1; i < T.length(); i += n) {
-            n = consec(T, i);
-            for (int j = 0; j < subs.length; j++)
 
+        int n = 0;
+        for (int i = 0; i < T.length(); i += n) {
+            n = consec(T, i);
+            for (int j = 0; j < subs.length; j++) {
+            /*    
             for (int k = i; k < S.length(); k++) {
                 if (T.charAt(i) == S.charAt(k)) r++;
                 dp[k] *= r;
             }
-            //int c = ncr(n, matches(T.charAt(i), S, i));
-            if (c == 0) return 0;
-            if (c > min) min = c;
+            */
+                if (dp[j] > 0) {
+                    int c = ncr(n, matches(T.charAt(i), S.substring(subs[j]), subs[j]+i));
+                    if (c > dp[j]) dp[j] = c;
+                }
+            }
         }
+
+        int min = 0;
+        for (int i = 0; i < dp.length; i++)
+            min += dp[i];
         return min;
     }
 
-    private int matches(char c, String S, int s, int[] dp) {
+    private int[] subseqs(char c1, String S) {
+        Set<Integer> set = new HashSet<Integer>();
+        int prev = c1;
+        for (int i = 0; i < S.length(); i++)
+            if (c1 == S.charAt(i)) 
+            
+    }
+
+    private int matches(char c, String S, int s) {
         int r = 0; 
         for (int k = s; k <= S.length(); k++)
             if (c == S.charAt(k)) r++;
