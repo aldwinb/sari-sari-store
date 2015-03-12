@@ -5,12 +5,9 @@ public class SearchBox {
         if (text == null || text.length() == 0) return -1;
         if (search == null || search.length() == 0) return -1;
         if (search.length() > text.length()) return -1;
-        
-        boolean exact = wholeWord == "Y";
-        int j = 0,
-            m == search.length();
-        for (int i = start, j = 0; i+m < text.length() && j < m; i++, j++)
-            if (text.charAt(i) != search.charAt(j))
+       
+
+        return kmp(text, search, wholeWord.equals("Y"), start, dfa(search)); 
     }
    
     private int kmp(String text, String search, boolean exact, int start, int[] dfa) {
@@ -24,21 +21,20 @@ public class SearchBox {
                 i++;
                 j++;
                 if (j == m) {
-                    if ((i == n-1 || text.charAt(i+1) == ' ')
-                        && (i-j == 0 || text.charAt(i-j) == ' ')
-                        && exact)
-                        return i;
-                    else j = 0;
+                    if (!exact) return i-j;
+                    if ((i == n || text.charAt(i) == ' ')
+                        && (i-j == 0 || text.charAt(i-j-1) == ' '))
+                        return i-j;
+                    j = 0;
                 }
-            } else if (i > 0) i = dfa[i];
-            else j++;
+            } else if (j > 0) j = dfa[j];
+            else i++;
         }
     }
 
     private int[] dfa(String s) {
-        int[] dfa = new dfa[s.length()+1];
+        int[] dfa = new int[s.length()+1];
         dfa[0] = dfa[1] = 0;
-        // ababac
         for (int i = 2; i < s.length(); i++) {
             int j = dfa[i-1];
             for (;;) {
@@ -54,5 +50,13 @@ public class SearchBox {
             }
         }
         return dfa;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new SearchBox().find(
+            args[0].replace(","," "), 
+            args[1], 
+            args[2], 
+            Integer.parseInt(args[3]))); 
     }
 }
