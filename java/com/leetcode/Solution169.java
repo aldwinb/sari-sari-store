@@ -24,54 +24,62 @@ public class Solution169 {
       s = 0, e = 2
       lo = 0, hi
     */
-    private Candidate findMajority(int[] num, int lo, int hi, int limit) {
-        //System.out.format("lo = %s, hi = %s, limit = %s\n", lo, hi, limit);
-        if (hi-lo < limit) return null;    
-        int majLimit = (hi+1-lo)/limit;
-        if (majLimit == 0 || lo == hi)
-            //System.out.format("cand = %s\n", num[lo]);
+    private Candidate findMajority(int[] num, int lo, int hi, int partition) {
+        if (lo >= num.length) return null;
+        if (lo == hi)
             return new Candidate(lo, lo);
-
-        Candidate[] parts = new Candidate[limit];
-        for (int i = lo; i <= hi; i += majLimit) {
-            System.out.format("p.lo = %s, p.hi = %s\n", parts[i].lo, parts[i].hi);
-            parts[i] = findMajority(num,i,Math.min(i+majLimit-1,hi),limit);
-            System.out.format("p.lo = %s, p.hi = %s\n", parts[i].lo, parts[i].hi);
+        int majLimit = (int)Math.round(((hi+1-lo)/(partition*1.0)));
+        Candidate[] parts = new Candidate[partition];
+        for (int i = 0, j = lo; i < partition; i++, j += majLimit) {
+            //System.out.format("p.lo = %s, p.hi = %s\n", parts[i].lo, parts[i].hi);
+            parts[i] = findMajority(num,j,j+majLimit-1,partition);
+            if (parts[i] != null)
+                System.out.format("lo = %s, hi = %s, majLimit = %s\n", parts[i].lo, parts[i].hi, majLimit);
         }
+        
         Candidate majority = parts[0];
         for (int i = 1; i < parts.length; i++) {
-            merge(majority,parts[i],num,majLimit);
+            //if (parts[i] != null)
+            //    System.out.format("merge lo = %s, p.hi = %s\n", parts[i].lo, parts[i].hi);
+            majority = merge(majority,parts[i],num,majLimit);
+            if (majority != null)
+                System.out.format("major lo = %s, hi = %s\n", majority.lo, majority.hi);
+            else
+                System.out.println("majority null");
             if (majority != null) return majority;
         }
+            //if (majority != null)
+            //    System.out.format("major lo = %s, hi = %s\n", majority.lo, majority.hi);
+            //else
+        //    System.out.println("majority null");
+
+        if (majority != null && majority.hi+1-majority.lo > majLimit-1)
+            return majority;
         return null;
     }
 
-    /*
-    1 2 3  
-    0 
-    1 2 3 3   3 3 4 4 6 6 6 7   7 7 7 8
-    0     3   4     7 8     11 12     15
-    */
-    private void merge(Candidate left, Candidate right, int num[], int majority) {
+       private Candidate merge(Candidate left, Candidate right, int num[], int majority) {
         if (left != null) {
-            int newLeftHi = left.hi+1+majority-(left.hi+1-left.lo);
-            if (num[newLeftHi] == num[left.hi])
+            int newLeftHi = left.hi+majority-(left.hi+1-left.lo)+1;
+            System.out.format("merge left lo = %s, hi = %s, newLeftHi = %s, majority = %s\n", left.lo, left.hi, newLeftHi, majority);
+            if (newLeftHi < num.length 
+                && num[newLeftHi] == num[left.hi])
                 left.hi = newLeftHi;
             if (left.hi+1-left.lo > majority)
-                return;
+                return left;
         }
 
         if (right != null) {
-            int newRightLo = right.lo-majority-(right.hi+1-right.lo);
-            if (num[newRightLo] == num[right.lo])
+            int newRightLo = right.lo-(majority-(right.hi+1-right.lo))-1;
+            System.out.format("merge right lo = %s, hi = %s, newRightLo = %s, majority = %s\n", right.lo, right.hi, newRightLo, majority);
+            if (newRightLo >= 0 
+                && num[newRightLo] == num[right.lo])
                 right.lo = newRightLo;
-            if (right.hi+1-right.lo > majority) {
-                left = right;
-                return;
-            }
+            if (right.hi+1-right.lo > majority) 
+                return right;
         }
     
-        left = null;
+        return null;
     }
 
     public static void main(String[] args) {
@@ -79,6 +87,6 @@ public class Solution169 {
         int[] num = new int[strNums.length];
         for (int i = 0; i < strNums.length; i++)
         num[i] = Integer.parseInt(strNums[i]);
-        System.out.println(String.format("%s", new Solution169().majorityElement(num)));
+        System.out.println(String.format("majority = %s", new Solution169().majorityElement(num)));
     }
 }
