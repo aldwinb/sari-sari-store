@@ -114,6 +114,7 @@ public class Solution169 {
         int newHi = Math.min(cand.hi+majority-(cand.hi+1-cand.lo)+1,hi);
         if (num[newHi] == num[cand.hi])
             cand.hi = newHi;
+        if (cand.hi+1-cand.lo > majority) return;
         int newLo = Math.max(cand.lo-(majority-(cand.hi+1-cand.lo))-1,lo);
         if (num[newLo] == num[cand.lo])
             cand.lo = newLo;
