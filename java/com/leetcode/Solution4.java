@@ -3,64 +3,92 @@ package com.leetcode;
 import java.util.*;
 import java.util.Calendar;
 
-/*
-median: 16302.0
-rtime = 9
-*/
+
 public class Solution4 {
+    private class SubArray {
+        int start, end;
+        public SubArray(int start, int end) {
+            this.start = start;
+            this.end = end;
+        }
+    }
+
     public double findMedianSortedArrays(int[] A, int[] B) {
         if (A.length == 0) return median(B);
         if (B.length == 0) return median(A);
-        if (A.length == 1 && B.length == 1)
-            return A[0] == B[0] ? A[0] : (A[0]+B[0])/2.0;
-        
-        int mid = (A.length+B.length)/2,
-            medToSearch = A.length > B.length ? B[B.length/2] : A[A.length/2],
-            j = bs(A.length > B.length ? A : B, medToSearch);
+        if (A[A.length-1] <= B[0])
+            return median(A,B);
+        if (B[B.length-1] <= A[0])
+            return median(B,A);
 
-        // System.out.format("mid = %s, med = %s, j = %s\n", mid, medToSearch, j);
-        return j;
+        int mid = (A.length+B.length)/2,
+            aInB = bs(B, A[A.length/2]),
+            bInA = bs(A, B[B.length/2]);
+     
+        return 0;
+    }
+
+    private void search(int[] less, 
+        int more[], 
+        SubArray subLess,
+        SubArray subMore,
+        int out, 
+        int target) {
+        int n = less.length+more.length;
+        while (1) {
+            int mid = (subLess.start+subLess.end)/2,
+                midOppo = bs(B,subLess.start,subLess.end,A[mid]);
+            if (mid+midOppo == target)
+                return median(A[mid],Math.min(A[mid-1],B[midOppo-1]),n%2 == 0);
+            if (mid+midOppo == target-1)
+                return median(Math.min(A[mid+1],B[midOppo+1]),A[mid],n%2 == 0);
+            if (midA+midOppo < target)
+                lo = midOppo;
+            else 
+                return search(less,more,midA+1,bsB-1,bsA+1,midB-1);
+
+        }
     }
 
     private double median(int[] a) {
-        if (a.length == 1) return a[0];
-        int mid = a.length / 2;
-        return a.length % 2 == 0 ? (a[mid-1]+a[mid])/2.0 : a[mid];
+        return median(new int[0], a);
     }
 
-    /* 
-
-      2 2 2 3           9
-    1         4 5 5 6 7
-    loA = 2
-    loB = 1
-    private double findMedian(int[] A, int[] B, int loA, int loB, int mid) {
-        int n = A.length+B.length;
-        if (loA+loB < mid) {
-            int next = bs(B, A[loA+1]);
-            if (next+ < mid) return B[B.length
-        } else if (loA+loB > mid) {
-        
-        } else {
-            int nextLo = bs(B,A[loA-1]);
-            if (nextLo+(loA-1) == mid-1) return A[loa]+A[loa-1] / 2.0;
-            return A[loA]+B[loB-1] / 2.0;
-        }
+    private double median(int[] less, int[] more) {
+        int n = less.length+more.length,
+            mid = n/2;
+        //System.out.format("mid = %s, less.length = %s\n", mid, less.length);
+        if (mid <= less.length-1)
+            return median(less[mid],
+                less[mid-1],
+                n%2 == 0);
+        if (mid == less.length)
+            return median(more[0], 
+                less[less.length-1],
+                n%2 == 0);
+        return median(more[mid-less.length],
+                more[mid-less.length-1],
+                n%2 == 0);
     }
-    */
+
+    private double median(int a, int b, boolean both) {
+        System.out.format("a = %s, b = %s, both = %s\n", a, b, both);
+        return !both ? a : (a+b)/2.0;
+    }
 
     private int bs(int[] B, int val) {
         return bs(B,0,B.length-1,val);
     }
 
     private int bs(int[] B, int lo, int hi, int val) {
-        //System.out.format("lo = %s, hi = %s\n", lo, hi);
-        if (lo == hi) 
-            return B[lo] > val ? lo : lo+1;
-        int mid = (hi+lo)/2;
-        if (val < B[mid]) return bs(B,lo,mid,val);
-        if (val > B[mid]) return bs(B,mid+1,hi,val);
-        return mid;
+        while (hi > lo) {
+            int mid = (hi+lo)/2;
+            if (val < B[mid]) hi = mid;
+            else if (val > B[mid]) lo = mid+1;
+            else return mid;
+        }
+            
+        return B[lo] > val ? lo : lo+1;
     }
 
     public static void main(String[] args) {
@@ -74,6 +102,7 @@ public class Solution4 {
         for (int i = 0; i < s1.length; i++)
             B[i] = Integer.parseInt(s1[i]);
 
+        //new Solution4().findMedianSortedArrays(A, B);
         /* A = new int[10000000];
         B = new int[10000000];
 
@@ -83,10 +112,12 @@ public class Solution4 {
         }
 
         Arrays.sort(A);
-        Arrays.sort(B); */
+        Arrays.sort(B);
 
+        */
         long start = Calendar.getInstance().getTimeInMillis();
-        System.out.println(String.format("median: %s", new Solution4().findMedianSortedArrays(A, B)));
+        System.out.println(String.format("median: %s", 
+            new Solution4().findMedianSortedArrays(A, B)));
         long end = Calendar.getInstance().getTimeInMillis();
         System.out.println(String.format("rtime = %s", end-start));
     }
