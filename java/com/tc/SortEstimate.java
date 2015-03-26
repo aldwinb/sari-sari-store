@@ -2,21 +2,32 @@ package com.tc;
 
 public class SortEstimate {
     public double howMany(int c, int time) {
-        double x = time / (c*1.0),
-            err = Math.pow(1.0,-9.0);
-        double lo = 0, hi = x, n = 0;
+        double lo = 1, 
+            hi = getHi(c,time), 
+            n = 0;
 
-        while (hi > lo) {
+        for (int i = 0; i < 50 && hi > lo; i++) {
             n = (hi+lo)/2;
             if (n == lo) return lo;
-            double m = n*(Math.log(n)/Math.log(2));
-            //System.out.format("lo = %s, hi = %s, n = %s, m = %s\n", lo, hi, n, m);
-            if (x < m) hi = n;
-            else if (x > m) lo = n;
+            if (n == hi) return hi;
+            double m = getTime(c,n);
+            if (time < m) hi = n;
+            else if (time > m) lo = n;
             else return n;
         }
 
         return n; 
+    }
+
+    private double getHi(int c, int time) {
+        double lo = 1;
+        while (getTime(c, lo) < time)
+            lo *= 2;
+        return lo;
+    }
+
+    private double getTime(int c, double x) {
+        return c*x*(Math.log(x)/Math.log(2));
     }
 
     public static void main(String[] args) {
