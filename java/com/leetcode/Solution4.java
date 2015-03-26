@@ -28,8 +28,18 @@ public class Solution4 {
         return 0;
     }
 
-    private void search(int[] less, 
-        int more[], 
+    // 2 2 2 3 9
+    // 1 4 5 5 6 7
+    // mid = 2, midOppo = 1
+    // 3 < 5
+    // s = 3, oppo = 2
+    //
+    // 3 9
+    // 4 5 5 6 7
+    // ptr = 3
+    // mid = 4, midOppo = 6
+    private void search(int[] A, 
+        int B[], 
         SubArray subLess,
         SubArray subMore,
         int out, 
@@ -42,11 +52,13 @@ public class Solution4 {
                 return median(A[mid],Math.min(A[mid-1],B[midOppo-1]),n%2 == 0);
             if (mid+midOppo == target-1)
                 return median(Math.min(A[mid+1],B[midOppo+1]),A[mid],n%2 == 0);
-            if (midA+midOppo < target)
-                lo = midOppo;
-            else 
-                return search(less,more,midA+1,bsB-1,bsA+1,midB-1);
-
+            if (midA+midOppo < target) {
+                subLess.start = mid+1;
+                subMore.start = midOppo+1;
+            } else {
+                subLess.end = mid-1;
+                subMore.end = midOppo-1;
+            }
         }
     }
 
