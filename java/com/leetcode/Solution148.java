@@ -3,67 +3,50 @@ package com.leetcode;
 public class Solution148 {
     public ListNode sortList(ListNode head) {
         if (head == null) return head;
-        return sort(head);    
+        return sort(head);
     }
 
-    private void sort(ListNode head) {
+    // 2->4->1->5->3
+    // 2->1->3, 4->5
+    // 2->1, 3
+    // 1->2, 3
+    // 1->2->3, 4->5
+    //
+    private ListNode sort(ListNode head) {
         if (head.next == null) return head;
-        
-        ListNode sntnl = head, 
-            n1 = head, 
-            n2 = head.next;
-        head = n2.next;
-        int i = 0;
+        ListNode less, lhead, ltail;
+        lhead = less = ltail = head.val;
+        head = head.next;
+        while (head != null && head.val == less.val) {
+            less.next = head;
+            less = less.next;
+            head = head.next;
+        }
+        lhead = less = ltail = head.val <= head.next.val ? head : head.next;
+        mhead = more = head.val > head.next.val ? head : head.next;
+        head = head.next.next;
+        less.next = more.next = null;
+        int mval = more.val;
         while (head != null) {
-            if (i++ % 2 == 0) {
-                n1.next = head;
-                n1 = n1.next;
-            }
-            else {
-                n2.next = head;
-                n2 = n2.next;
+            if (head.val < mval) {
+                if (ltail.val < head.val)
+                    ltail = head;
+                less.next = head;
+                less = less.next;
+            } else {
+                System.out.format("more = %s\n", head.val);
+                more.next = head;
+                more = more.next;
             }
             head = head.next;
         }
 
-        sort(n1);
-        sort(n2);
-        merge(n1,n2);
-        head = n1;
+        System.out.format("ltail = %s, lhead = %s, mhead = %s\n", ltail.val, lhead.val, mhead.val);
+        lhead = sort(lhead);
+        mhead = sort(mhead);
+        ltail.next = mhead;
+        return lhead;
     }
-
-    private void merge(ListNode n1, ListNode n2) {
-        if (n1 == null) {
-            n1 = n2;
-            return;
-        }
-        if (n2 == null) return;
-        
-        Node sntnl
-        while (n1 != null && n2 != null)
-            if (
-    }
-
-    /*
-    private ListNode sort(ListNode head) {
-        if (head.next == null) return head;
-        ListNode sorted = sort(head.next);
-        //System.out.format("head = %s, sorted = %s\n", head.val, sorted.val);
-        if (head.val <= sorted.val) {
-            head.next = sorted;
-            return head;
-        }
-        head.next = null;
-        ListNode sntnl = sorted;
-        while (sorted.next != null && sorted.next.val < head.val)
-            sorted = sorted.next;
-        
-        ListNode temp = sorted.next; 
-        sorted.next = head;
-        head.next = temp;
-        return sntnl;
-    }
-    */
 
     public static void main(String[] args) {
         String[] ints = args[0].split(",");
