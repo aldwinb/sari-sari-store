@@ -6,42 +6,45 @@ public class Solution148 {
         return sort(head);
     }
 
-    // 2->4->1->5->3
-    // 2->1->3, 4->5
-    // 2->1, 3
-    // 1->2, 3
-    // 1->2->3, 4->5
-    //
     private ListNode sort(ListNode head) {
         if (head.next == null) return head;
         ListNode less, lhead, ltail;
-        lhead = less = ltail = head.val;
+        lhead = less = head;
         head = head.next;
         while (head != null && head.val == less.val) {
             less.next = head;
             less = less.next;
             head = head.next;
         }
-        lhead = less = ltail = head.val <= head.next.val ? head : head.next;
-        mhead = more = head.val > head.next.val ? head : head.next;
-        head = head.next.next;
-        less.next = more.next = null;
+        less.next = null;
+        if (head == null) return lhead;
+
+        ListNode more, mhead;
+        if (lhead.val < head.val) {
+            more = mhead = head;
+            ltail = less; 
+        } else {
+            more = less;
+            mhead = lhead;
+            less = lhead = ltail = head;
+        }
+        head = head.next;
+
         int mval = more.val;
         while (head != null) {
             if (head.val < mval) {
-                if (ltail.val < head.val)
+                if (ltail.val <= head.val)
                     ltail = head;
                 less.next = head;
                 less = less.next;
             } else {
-                System.out.format("more = %s\n", head.val);
                 more.next = head;
                 more = more.next;
             }
             head = head.next;
         }
 
-        System.out.format("ltail = %s, lhead = %s, mhead = %s\n", ltail.val, lhead.val, mhead.val);
+        less.next = more.next = null;
         lhead = sort(lhead);
         mhead = sort(mhead);
         ltail.next = mhead;
