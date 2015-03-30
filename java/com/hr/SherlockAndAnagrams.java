@@ -1,6 +1,7 @@
 package com.hr;
 
 import java.util.*;
+import java.util.regex.*;
 
 public class SherlockAndAnagrams  {
     private class Node {
@@ -55,6 +56,9 @@ public class SherlockAndAnagrams  {
                 for (int k = 0; k < n-i; k++)
                     key[k] = S.charAt(j+k);
                 Arrays.sort(key);
+                for (int p = 0; p < key.length; p++)
+                    System.out.print(key[p]);
+                System.out.println("");
                 int val = dict.searchOrAdd(key); 
                 if (val % 2 == 0)
                     count++;
@@ -66,7 +70,13 @@ public class SherlockAndAnagrams  {
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
         SherlockAndAnagrams soln = new SherlockAndAnagrams();
-        while (in.hasNext())
-            System.out.println(soln.countAnagramPairs(in.next())); 
+        while (in.hasNextLine()) {
+            String[] pairs = in.nextLine().split("\\t");
+            int count = soln.countAnagramPairs(pairs[0]);
+            if (count != Integer.parseInt(pairs[1]))
+                System.out.format("expected\t%s\tactual\t%s\n", 
+                    pairs[1], 
+                    count);
+        }
     }
 }
