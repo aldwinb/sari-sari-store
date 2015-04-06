@@ -40,24 +40,24 @@ public class Solution4 {
     // mid = 4, midOppo = 6
     private void search(int[] A, 
         int B[], 
-        SubArray subLess,
-        SubArray subMore,
+        SubArray sub1,
+        SubArray sub2,
         int out, 
         int target) {
         int n = less.length+more.length;
         while (1) {
-            int mid = (subLess.start+subLess.end)/2,
-                midOppo = bs(B,subLess.start,subLess.end,A[mid]);
-            if (mid+midOppo == target)
-                return median(A[mid],Math.min(A[mid-1],B[midOppo-1]),n%2 == 0);
-            if (mid+midOppo == target-1)
-                return median(Math.min(A[mid+1],B[midOppo+1]),A[mid],n%2 == 0);
-            if (midA+midOppo < target) {
-                subLess.start = mid+1;
-                subMore.start = midOppo+1;
+            int mid = (sub1.start+sub1.end)/2,
+                inb = bs(B,sub2.start,sub2.end,A[mid]);
+            if (mid+inb == target)
+                return median(A[mid],Math.min(A[mid-1],B[inb-1]),n%2 == 0);
+            if (mid+inb == target-1)
+                return median(Math.min(A[mid+1],B[inb+1]),A[mid],n%2 == 0);
+            if (mid+inb < target) {
+                sub1.start = mid+1;
+                sub2.start = inb+1;
             } else {
-                subLess.end = mid-1;
-                subMore.end = midOppo-1;
+                sub1.end = mid-1;
+                sub2.end = inb-1;
             }
         }
     }

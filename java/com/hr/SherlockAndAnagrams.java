@@ -49,19 +49,24 @@ public class SherlockAndAnagrams  {
         int n = S.length(),
             count = 0;
         if (n == 1) return 0;
-        TST dict = new TST();
+        TST dict = null;
         for (int i = 1; i < n; i++) {
+            dict = new TST();
             for (int j = 0; j <=i; j++) {
                 char[] key = new char[n-i+1];
                 for (int k = 0; k < n-i; k++)
                     key[k] = S.charAt(j+k);
                 Arrays.sort(key);
+                /*
                 for (int p = 0; p < key.length; p++)
                     System.out.print(key[p]);
                 System.out.println("");
+                */
                 int val = dict.searchOrAdd(key); 
-                if (val % 2 == 0)
+                if (val%2==0) {
                     count++;
+                    //System.out.format("count = %s\n", count);
+                }
             }   
         }
         return count;
@@ -73,10 +78,12 @@ public class SherlockAndAnagrams  {
         while (in.hasNextLine()) {
             String[] pairs = in.nextLine().split("\\t");
             int count = soln.countAnagramPairs(pairs[0]);
-            if (count != Integer.parseInt(pairs[1]))
+            if (count != Integer.parseInt(pairs[1])) {
+                System.out.println(pairs[0]);
                 System.out.format("expected\t%s\tactual\t%s\n", 
                     pairs[1], 
                     count);
+            }
         }
     }
 }
