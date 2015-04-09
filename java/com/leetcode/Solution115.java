@@ -1,15 +1,22 @@
 package com.leetcode;
 
+import java.util.*;
+
 public class Solution115 {
     public int numDistinct(String S, String T) {
 
-        
+        /*
         arrd
-        farrrnjard
-      a 0111111222
-      r   12333355
-      r    1222233
+         fayr2njar1d
+      a  0111 1122 2
+      r2 0001 1115 5
       d     000003
+
+         fayrrnjard_
+       a 0111111222
+       r 0001222244
+       r 0000111133
+       d 0000000003
 
         _arrr__ard
         0111111222
@@ -21,75 +28,37 @@ public class Solution115 {
 
         arrrjard
         ard
-
+        */
         if (T.length() > S.length()) return 0;
-       
-        int[] subs = subseqs(T.charAt(0), S),
-            dp = new int[subs.length];
-        Arrays.fill(dp, 0);
-
-        int n = 0;
-        for (int i = 0; i < T.length(); i += n) {
-            n = consec(T, i);
-            for (int j = 0; j < subs.length; j++) {
-            /*    
-            for (int k = i; k < S.length(); k++) {
-                if (T.charAt(i) == S.charAt(k)) r++;
-                dp[k] *= r;
-            }
-            */
-                if (dp[j] > 0) {
-                    int c = ncr(n, matches(T.charAt(i), S.substring(subs[j]), subs[j]+i));
-                    if (c > dp[j]) dp[j] = c;
-                }
-            }
+        int[] dp1 = new int[S.length()+1],
+            dp2 = new int[S.length()+1];
+        Arrays.fill(dp1, 1);
+        Arrays.fill(dp2, 0);
+        for (int i = 0; i < T.length(); i++) {
+            for (int j = 1; j <= S.length(); j++)
+                if (T.charAt(i) == S.charAt(j))
+                    dp2[j] = dp1[j-1]+dp2[j-1];
+                else
+                    dp2[j] = dp2[j-1];
+            dp1 = dp2;
         }
 
-        int min = 0;
-        for (int i = 0; i < dp.length; i++)
-            min += dp[i];
-        return min;
+        return dp1[S.length()];
     }
 
-    private int[] subseqs(char c1, String S) {
-        Set<Integer> set = new HashSet<Integer>();
-        int prev = c1;
-        for (int i = 0; i < S.length(); i++)
-            if (c1 == S.charAt(i)) 
-            
-    }
-
-    private int matches(char c, String S, int s) {
-        int r = 0; 
-        for (int k = s; k <= S.length(); k++)
-            if (c == S.charAt(k)) r++;
-        return r;
-    }
-
-    private int consec(String T, int s) {
-        char c = T.charAt(s);
-        int i = s+1;
-        for (; i < T.length() && c == T.charAt(i); i++);
-        return i-s;
-    }
-
-    private int ncr(int n, int r) {
-      /*
-            1.2.3.4.5
-
-            1.(4.3.2.1) 5 / 1
-            1.2.(3.2.1) 5.4 / 1.2
-            1.2.3.(2.1) 5.4.3 / 1.2.3
-            1.2.3.4.(1)
-            1.2.3.4.5.()
-            */
-        if (r > n || r == 0) return 0;
-        int np = 1,
-            rp = 1;
-        for (int i = n, j = 1; j <= r; i--, j++) {
-            np *= n;
-            rp *= j;
+    public static void main(String[] args) {
+        Scanner s = new Scanner(System.in);
+        Solution115 soln = new Solution115();
+        while (s.hasNextLine()) {
+            String[] testCase = s.nextLine().split("\\t");
+            String[] input = testCase[0].split(",");
+            int expected = Integer.parseInt(testCase[1]),
+                actual = soln.numDistinct(input[0], input[1]);
+            if (expected != actual)
+                System.out.format("Test case = %s, expected = %s, actual = %s",
+                    testCase[0],
+                    expected,
+                    actual);
         }
-        return np/rp;
     }
 }
