@@ -1,0 +1,11 @@
+abakada,alpabet,tagalog,ako	abakada,ako,alpabet,tagalog
+ang,ano,anim,alak,alam,alab	alab,alak,alam,anim,ano,ang
+siya,niya,kaniya,ikaw,ito,iyon	kaniya,ikaw,ito,iyon,niya,siya
+kaba,baka,naba,ngipin,nipin	baka,kaba,naba,nipin,ngipin
+knilngiggnngginggn,ingkigningg,kingkong,dingdong,dindong,dingdont,ingkblot	kingkong,knilngiggnngginggn,dindong,dingdont,dingdong,ingkblot,ingkigningg
+silangang,baka,bada,silang	baka,bada,silang,silangang
+osang,osan,osangng	osan,osang,osangng
+tara,karambola,halika,nakaw,halik	karambola,halik,halika,nakaw,tara
+yaya,wala,nang,gana,manang,bola,ngarag	bola,gana,manang,nang,ngarag,wala,yaya
+diba,ikaw,ikasa,kasal,kasama,dungol,dunol,dunnol,dungnol,dunngnol	kasal,kasama,diba,dunnol,dunngnol,dunol,dungnol,dungol,ikasa,ikaw
+hasang,hasan,asan,saan,hasangnng,hasanngn,hasangng,hasannn	asan,hasan,hasannn,hasanngn,hasang,hasangnng,hasangng,saan

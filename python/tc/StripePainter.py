@@ -3,20 +3,31 @@ import sys
 
 class StripePainter:
 
-    __cost = []
+    def __init__(self):
+        self.__cost = []
 
     def minStrokes(self, stripes):
         if len(stripes) <= 1:
             return len(stripes)
-        for i in range(len(stripes)):
-            self.__cost.append(sys.maxint)
-        return self.__cut(stripes, 0)
-        # return self.__getMinStrokes(stripes)
+        # for i in range(len(stripes)):
+        #     self.__cost.append(sys.maxint)
+        # return self.__cut(stripes, 0)
+        return self.__getMinStrokes(stripes)
 
     # BECBBDDEEBABDCADEAAEABCACBDBEECDEDEACACCBEDABEDADD
     # B__BB____B_B_________B___B_B____________B___B_____ = 1
     # B__BBDDEEB_B__A__AA_ABC_CB_BEE__E_E_____B___B_D_DD = 7
     # B__BBDDEEB_B__A__AA_ABC_CB_BEE__E_E_C_CCB___B_D_DD = 8
+
+    # EECDEDEACACC
+    #
+    # BECBBDDEEBABDCADEAAEABCACBDBEECDEDEACACCBEDABEDADD
+    # _E_____EE_______E__E________EE__E_E______E___E____ = 1
+    # _E_BB__EEB_B____E__E_B___B_BEE__E_E______E___E____ = 4
+    # _E_BBDDEEB_BD__DE__E_B___B_BEE__E_E______E___ED_DD = 7
+    # _E_BBDDEEB_BD__DE__E_BC_CB_BEE__E_E_C_CC_E___ED_DD = 9
+    # _E_BBDDEEB_BD__DEAAE_BC_CB_BEE__E_E_C_CC_E___ED_DD = 10
+
     def __cut(self, stripes, j):
         if len(stripes)-j <= 1:
             return len(stripes)-j
@@ -41,7 +52,7 @@ class StripePainter:
         return self.__cost[j]
 
     def __getMinStrokes(self, stripes):
-        # print "stripes = %s" % stripes
+        print "stripes = %s" % stripes
         stroke = stripes[0]
         new_stroke = -1
         c = 1
@@ -50,12 +61,12 @@ class StripePainter:
                 new_stroke = i
             elif stroke == stripes[i] and new_stroke != -1:
                 c = c+self.__getMinStrokes(stripes[new_stroke:i])
-                # print "count = %s" % c
+                print "count = %s" % c
                 new_stroke = -1
 
         if new_stroke != -1:
             c = c+self.__getMinStrokes(stripes[new_stroke:i+1])
-        # print "count = %s" % c
+        print "count = %s" % c
         return c
 
 if __name__ == '__main__':
