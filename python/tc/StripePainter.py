@@ -52,7 +52,7 @@ class StripePainter:
         return self.__cost[j]
 
     def __getMinStrokes(self, stripes):
-        print "stripes = %s" % stripes
+        # print "stripes = %s" % stripes
         stroke = stripes[0]
         new_stroke = -1
         c = 1
@@ -61,12 +61,12 @@ class StripePainter:
                 new_stroke = i
             elif stroke == stripes[i] and new_stroke != -1:
                 c = c+self.__getMinStrokes(stripes[new_stroke:i])
-                print "count = %s" % c
+                # print "count = %s" % c
                 new_stroke = -1
 
         if new_stroke != -1:
             c = c+self.__getMinStrokes(stripes[new_stroke:i+1])
-        print "count = %s" % c
+        # print "count = %s" % c
         return c
 
 if __name__ == '__main__':
@@ -77,4 +77,10 @@ if __name__ == '__main__':
         # for i in range(1, len(line)+1):
         #     line2 = line2 + line[-i]
         # print sp.minStrokes(line2)
-        print sp.minStrokes(line.replace('\n', ''))
+        line = line.replace('\n', '').split('\t')
+        expected = int(line[1])
+        actual = sp.minStrokes(line[0])
+        if expected != actual:
+            msg = ('%s\texpected = %s\tactual = %s' %
+                   (line[0], expected, actual))
+            print msg
