@@ -1,6 +1,8 @@
 package com.leetcode;
 
-public class Solution98 {
+import java.util.*;
+
+public class Solution99 {
   private class MisplacedTree {
     TreeNode parent, miss;
     public MisplacedTree(TreeNode parent, TreeNode miss) {
@@ -11,10 +13,58 @@ public class Solution98 {
 
   public void recoverTree(TreeNode root) {
     MisplacedTree mt = searchMiss(root);
-    if (!tryFix(root, mt))
+    if (!searchMiss(root, root.val))
       swap(mt.parent, mt.miss);
   }
 
+  /*
+   *          6
+   *        4    8
+   *      2 *7 *5 9
+   *     1 3       10
+   *
+   *  1 3 2 7 4 
+   *  5 10 9 8
+   *
+   *  3
+   *    2
+   *      1
+   */
+
+  private void searchMiss(TreeNode x, int rootVal) {
+    if (x == null) return null;
+    TreeNode l = searchMore(x.left, rootVal),
+      r = searchLess(x.right, rootVal);
+    if (l != null && r != null) {
+      swap(l, r);
+      return;
+    }
+    if (l != null)
+      searchMiss(x.left, x.left.val);
+    else
+      searchMiss(x.right, x.right.val);
+  }
+
+  private TreeNode searchLess(TreeNode x, int val) {
+    if (x == null) return null;
+    TreeNode less = searchLess(x.left, val);
+    if (less != null) return less;
+    less = searchLess(x.right, val);
+    if (less != null) return less;
+    if (x.val < val) return x;
+    return null;
+  }
+
+  private TreeNode searchMore(TreeNode x, int val) {
+    if (x == null) return null;
+    TreeNode less = searchMore(x.left, val);
+    if (less != null) return less;
+    less = searchMore(x.right, val);
+    if (less != null) return less;
+    if (x.val > val) return x;
+    return null;
+  }
+  /*
   private MisplacedTree searchMiss(TreeNode x) {
     if (x.left == null && x.right == null) return null;
     
@@ -34,13 +84,13 @@ public class Solution98 {
 
   private boolean tryFix(TreeNode x, MisplacedTree mt) {
     if (x.left == null && x.right == null) return false;
-    if (x.equals(mt.parent)) return false;
 
     boolean fixed = false;
     if (x.left != null) {
       fixed = tryFix(x.left, mt);
       if (fixed) return fixed;
-      if (x.val > mt.miss.val && mt.parent.val > x.left.val) {
+      if (x.equals(mt.miss)) return false;
+      if (x.val > mt.miss.val) {
         swap(x.left, mt.miss);
         return true;
       }
@@ -61,20 +111,27 @@ public class Solution98 {
     a.val = b.val;
     b.val = temp;
   }
-
+  */
+  
   public static void main(String[] args) {
     Scanner s = new Scanner(System.in);
-    Solution98 soln = new Solution98();
-    while (!s.hasNextLine()) {
-      String[] testCase = s.nextLine.split("\\t");
+    Solution99 soln = new Solution99();
+    while (s.hasNextLine()) {
+      String[] testCase = s.nextLine().split("\\t");
       List<TreeNode> nodes = getNodeList(testCase[0].split(","));
-      
+      TreeNode t = buildTree(nodes);
+      soln.recoverTree(t);
+      String actual = stringify(nodes);
+      if (testCase[1].compareTo(actual) != 0)
+        System.out.format("%s\texpected=%s\tactual=%s\n", 
+          testCase[0],
+          testCase[1],
+          actual);
     }
   }
 
   private static List<TreeNode> getNodeList(String[] s) {
     List<TreeNode> nodes = new ArrayList<TreeNode>(s.length);
-    //nodes.add(null);
     nodes.add(new TreeNode(Integer.parseInt(s[0])));
     for (int i = 1; i < s.length; i++) {
       if (s[i].compareTo("#") != 0)
@@ -87,29 +144,26 @@ public class Solution98 {
 
   private static TreeNode buildTree(List<TreeNode> nodes) {
     TreeNode t = nodes.get(0);
-    /*
-    if (s.length > 1) {
-        if (s[1].compareTo("#") != 0) {
-            t.left = new TreeNode(Integer.parseInt(s[1]));
-            nodes.add(t.left);
-        } 
-    }
-    if (s.length > 2) {
-        if (s[2].compareTo("#") != 0) {
-            t.right = new TreeNode(Integer.parseInt(s[2]));
-            nodes.add(t.right);
-        } 
-    }
-    
-    if (s.length > 3) {
-    */
     for (int i = 1; i < nodes.size(); i += 2) {
         TreeNode parent = nodes.get(i/2);
         if (parent == null) continue;
-        parent.left = nodes[i];
-        parent.right = nodes[i+1];
+        parent.left = nodes.get(i);
+        parent.right = nodes.get(i+1);
     }
 
     return t;
   }
+
+  private static String stringify(List<TreeNode> nodes) {
+    StringBuilder sb = new StringBuilder();
+    for (TreeNode n : nodes) {
+      if (n != null)
+        sb.append(n.val);
+      else
+        sb.append("#");
+      sb.append(",");
+    }
+    return sb.deleteCharAt(sb.length()-1).toString();
+  }
+
 }
