@@ -81,6 +81,4 @@ if __name__ == '__main__':
         expected = int(line[1])
         actual = sp.minStrokes(line[0])
         if expected != actual:
-            msg = ('%s\texpected = %s\tactual = %s' %
-                   (line[0], expected, actual))
-            print msg
+          print '%s\texpected = %s\tactual = %s' % (line[0], expected, actual)

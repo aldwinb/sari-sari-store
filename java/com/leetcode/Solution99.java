@@ -3,115 +3,176 @@ package com.leetcode;
 import java.util.*;
 
 public class Solution99 {
-  private class MisplacedTree {
-    TreeNode parent, miss;
-    public MisplacedTree(TreeNode parent, TreeNode miss) {
+  
+  private class LostTree {
+    TreeNode parent, child;
+    boolean less;
+    public LostTree(TreeNode child, TreeNode parent, boolean less) {
+      this.child = child;
       this.parent = parent;
-      this.miss = miss;
+      this.less = less;
     }
   }
-
+  
+  private LostTree m1, m2;
+  
   public void recoverTree(TreeNode root) {
-    MisplacedTree mt = searchMiss(root);
-    if (!searchMiss(root, root.val))
-      swap(mt.parent, mt.miss);
-  }
-
-  /*
-   *          6
-   *        4    8
-   *      2 *7 *5 9
-   *     1 3       10
-   *
-   *  1 3 2 7 4 
-   *  5 10 9 8
-   *
-   *  3
-   *    2
-   *      1
-   */
-
-  private void searchMiss(TreeNode x, int rootVal) {
-    if (x == null) return null;
-    TreeNode l = searchMore(x.left, rootVal),
-      r = searchLess(x.right, rootVal);
-    if (l != null && r != null) {
-      swap(l, r);
-      return;
-    }
-    if (l != null)
-      searchMiss(x.left, x.left.val);
-    else
-      searchMiss(x.right, x.right.val);
-  }
-
-  private TreeNode searchLess(TreeNode x, int val) {
-    if (x == null) return null;
-    TreeNode less = searchLess(x.left, val);
-    if (less != null) return less;
-    less = searchLess(x.right, val);
-    if (less != null) return less;
-    if (x.val < val) return x;
-    return null;
-  }
-
-  private TreeNode searchMore(TreeNode x, int val) {
-    if (x == null) return null;
-    TreeNode less = searchMore(x.left, val);
-    if (less != null) return less;
-    less = searchMore(x.right, val);
-    if (less != null) return less;
-    if (x.val > val) return x;
-    return null;
-  }
-  /*
-  private MisplacedTree searchMiss(TreeNode x) {
-    if (x.left == null && x.right == null) return null;
+    m1 = m2 = null;
+    searchMiss(root, false);
     
-    MisplacedTree mt;
-    if (x.left != null) {
-      mt = searchMiss(x.left);
-      if (mt != null) return mt;
-      if (x.val < x.left.val) return new MisplacedTree(x,x.left);
-    }
-
-    mt = searchMiss(x.right);
-    if (mt != null) return mt;
-    if (x.val > x.right.val) return new MisplacedTree(x,x.right);
-
-    return mt;
+    /*
+    System.out.format("child1 = %s, parent1 = %s, child2 = %s, parent2 = %s\n",
+      m1.child.val, 
+      m1.parent.val, 
+      m2 != null ? m2.child.val : "--",
+      m2 != null ? m2.parent.val : "--");
+    */
+    
+    if (m1 != null && m2 != null) {
+      if ((m1.less && m2.child.val < m1.parent.val)
+        || !m1.less && m2.child.val > m1.parent.val)
+        swap(m1.child, m2.child);
+      else
+        swap(m1.child, m2.parent);
+    } else
+      swap(m1.child, m1.parent);
   }
 
-  private boolean tryFix(TreeNode x, MisplacedTree mt) {
-    if (x.left == null && x.right == null) return false;
 
-    boolean fixed = false;
-    if (x.left != null) {
-      fixed = tryFix(x.left, mt);
-      if (fixed) return fixed;
-      if (x.equals(mt.miss)) return false;
-      if (x.val > mt.miss.val) {
-        swap(x.left, mt.miss);
-        return true;
+  /*
+        5 
+      1   *4
+        *7
+        
+    x = 5, findMin = true
+      x = 1, findMin = false
+        x = 7, findMin = true
+        ret = 7
+      r = 7
+      r.val < x.val = 7 < 1
+      ret = 7
+    l = 7
+      x = 4, findMin = true
+      ret = 4
+    r = 4
+    l.val > x.val = 7 > 5, m1 = { c:7, p:5, l:true }
+    r.val < x.val = 4 < 5, m2 = { c:4, p:5, l:false }
+    
+    m2 == null - no
+    true && 5 > 4 - yes
+    swap (7, 4)
+    
+    *3
+       2
+        *1
+      
+    x = 3, findMin = true
+      x = 2, findMin = true
+        x = 1, findMin = true
+        ret = 1
+      r = 1
+      r.val < x.val = 1 < 2, m1 = { c:1, p:2, l:false }
+      ret = 2
+    r = 2
+    r.val < x.val = 2 < 3, m2 = { c:2, p:3, l:false }
+    
+    m2 == null - no
+    false && 2 < 2 - no
+    swap (1, 3)
+    
+          *1
+         3
+       2
+    *4
+    
+    x = 1, findMin = true
+      x = 3, findMin = false
+        x = 2, findMin = false
+          x = 4, findMin = false
+          ret = 4 
+        l = 4
+        l.val > x.val = 4 > 2, m1 = { c:4, p:2, l:true }
+        ret = 2
+      l = 2
+      l.val > x.val = 2 > 3
+      ret = 3
+    l = 3
+    l.val > x.val = 3 > 1, m2 = { c:3, p:1, l:true }
+    
+    m2 == null - no
+    true && 2 > 3 - no
+    
+    swap (4, 1)
+    
+        1
+      2
+    
+    x = 1, findMin = true
+      x = 2, findMin = false
+      ret = 2
+    l = 2
+    l.val > x.val = 2 > 1, m1 = { c:2, p:1, l:true }
+    
+    swap (2, 1)
+    
+  */
+  
+  private TreeNode searchMiss(TreeNode x, boolean findMin) {
+    if (x.left == null && x.right == null) return x;
+    if (m1 != null && m2 != null) return null;
+    TreeNode l = null,
+      r = null;
+    if (x.left != null) l = searchMiss(x.left, false);
+    if (x.right != null) r = searchMiss(x.right, true);
+    
+    boolean leftIsLost = false, 
+      rightIsLost = false;
+    if (l != null) {
+      if (l.val > x.val) {
+        if (m1 == null)
+          m1 = new LostTree(l, x, true);
+        else
+          m2 = new LostTree(l, x, true);
+        leftIsLost = true;
       }
     }
-
-    fixed = tryFix(x.right, mt);
-    if (fixed) return fixed;
-    if (x.val < mt.miss.val && mt.parent.val < x.right.val) {
-      swap(x.right, mt.miss);
-      return true;
+    
+    if (r != null) {
+      if (r.val < x.val) {
+        if (m1 == null)
+          m1 = new LostTree(r, x, false);
+        else
+          m2 = new LostTree(r, x, false);
+        rightIsLost = true;
+      }
     }
-
-    return fixed;
+    
+    return findMin 
+      ? minNode(x, minNode(!leftIsLost ? l : null, !rightIsLost ? r : null)) 
+      : maxNode(x, maxNode(!leftIsLost ? l : null, !rightIsLost ? r : null));
   }
 
-  private void swap(TreeNode a, TreeNode b) {
-    int temp = a.val;
-    a.val = b.val;
-    b.val = temp;
+  private TreeNode minNode(TreeNode n1, TreeNode n2) {
+    if (n1 != null && n2 != null)
+      return n1.val <= n2.val ? n1 : n2;
+    if (n1 == null)
+      return n2;
+    return n1;
   }
-  */
+  
+  private TreeNode maxNode(TreeNode n1, TreeNode n2) {
+    if (n1 != null && n2 != null)
+      return n1.val > n2.val ? n1 : n2;
+    if (n1 == null)
+      return n2;
+    return n1;
+  }
+  
+  private void swap(TreeNode n1, TreeNode n2) {
+    int tmp = n1.val;
+    n1.val = n2.val;
+    n2.val = tmp;
+  }
   
   public static void main(String[] args) {
     Scanner s = new Scanner(System.in);

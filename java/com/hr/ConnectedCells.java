@@ -6,16 +6,33 @@ import java.text.*;
 import java.math.*;
 import java.util.regex.*;
 
-public class ConnectedCells {
-
-    private class Range {
-        public int x1, x2;
-        public Range(int x1, int x2) {
-            this.x1 = x1;
-            this.x2 = x2;
-        }
+public class ConnectedCells {    
+  private class Range implements Comparable<Range> {
+    private int hashCode;
+    public int x1, x2, y1;
+    public Range(int x1, int x2, int y1) {
+      this.x1 = x1;
+      this.x2 = x2;
+      this.y1 = y1;
+      hashCode = x1*10 + y1;
     }
-
+    public int hashCode() {
+      return hashCode;
+    }
+    public int compareTo(Range r) {
+      if (this.x1 < r.x1) return -1;
+      if (this.x1 == r.x1) return 0;
+      return 1;
+    }
+  }
+  
+  private class Region {
+    public int size;
+    public Region() {
+      size = 0;
+    }
+  }
+  /*
     private class Region {
         Map<Integer, List<Range>> ranges;
         public int count;
@@ -34,40 +51,44 @@ public class ConnectedCells {
             count += e.x2+1-e.x1;
         }
     }
+    */
     
-    public int maxRegion(int[][] G) {
-        if (G.length == 0 || G[0].length == 0) return 0;
-        if (G.length == 1 && G[0].length == 1) return G[0][0];
+  public int maxRegion(int[][] G) {
+    if (G.length == 0 || G[0].length == 0) return 0;
+    if (G.length == 1 && G[0].length == 1) return G[0][0];
 
-        int max = 0;
-        List<Region> regions = new ArrayList<Region>();
-        for (int i = 0; i < G.length; i++) {
-            int[] r = G[i];
-            int s = -1;
-            List<Range> newEnds = new ArrayList<Range>();
-            for (int j = 0; j < r.length; j++) {
-                if (r[j] == 1) { 
-                    if (s == -1) s = j;
-                } else { 
-                    //System.out.format("r[j] = %s\n", r[j]);
-                    if (s != -1) {
-                        newEnds.add(new Range(s, j-1));
-                        s = -1;
-                    }
-                }
-            }
-
-            if (s != -1)
-                newEnds.add(new Range(s, r.length-1));
-            max = Math.max(max, expandRegions(regions, newEnds, i));
-            /*
-            for (Region r1 : regions)
-                System.out.format("r.count = %s\n", r1.count);
-            System.out.println("");
-            */
-        }
-        return max;
+    int max = 0;
+    Map<Range, Region> rrMap = new HashMap<Range, Region>();
+    Queue<Range> ranges = new PriorityQueue<Range>();
+    //List<Region> regions = new ArrayList<Region>();
+    for (int i = 0; i < G.length; i++) {
+      addRanges(ranges, G[i], i);
+      Range r = ranges.poll();
+      while (!ranges.isEmpty()) {
+        Range r1 = ranges.poll();
+        if (connected(r, r1))
+          
+      }
     }
+    return max;
+  }
+  
+  private List<Range> getRanges(List<Range> ranges, int[] r, int lvl) {
+    int s = -1;
+    for (int j = 0; j < r.length; j++) {
+      if (r[j] == 1) { 
+        if (s == -1) s = j;
+      } else {
+        if (s != -1) {
+          ranges.add(new Range(s, j-1, lvl));
+          s = -1;
+        }
+      }
+    }
+
+    if (s != -1)
+      ranges.add(new Range(s, r.length-1, lvl));
+  }
 
     private int expandRegions(
         List<Region> regions, 
