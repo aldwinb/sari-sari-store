@@ -6,7 +6,28 @@ import java.text.*;
 import java.math.*;
 import java.util.regex.*;
 
-public class ConnectedCells {    
+public class ConnectedCells {
+  public int maxRegion(int[][] G) {
+    if (G.length == 0 || G[0].length == 0) return 0;
+    if (G.length == 1 && G[0].length == 1) return G[0][0];
+
+    int max = 0;
+    Map<Range, Region> rrMap = new HashMap<Range, Region>();
+    Queue<Range> ranges = new PriorityQueue<Range>();
+    //List<Region> regions = new ArrayList<Region>();
+    for (int i = 0; i < G.length; i++) {
+      addRanges(ranges, G[i], i);
+      Range r = ranges.poll();
+      while (!ranges.isEmpty()) {
+        Range r1 = ranges.poll();
+        if (connected(r, r1))
+          
+      }
+    }
+    return max;
+  }
+  
+  /*
   private class Range implements Comparable<Range> {
     private int hashCode;
     public int x1, x2, y1;
@@ -32,7 +53,6 @@ public class ConnectedCells {
       size = 0;
     }
   }
-  /*
     private class Region {
         Map<Integer, List<Range>> ranges;
         public int count;
@@ -51,28 +71,7 @@ public class ConnectedCells {
             count += e.x2+1-e.x1;
         }
     }
-    */
     
-  public int maxRegion(int[][] G) {
-    if (G.length == 0 || G[0].length == 0) return 0;
-    if (G.length == 1 && G[0].length == 1) return G[0][0];
-
-    int max = 0;
-    Map<Range, Region> rrMap = new HashMap<Range, Region>();
-    Queue<Range> ranges = new PriorityQueue<Range>();
-    //List<Region> regions = new ArrayList<Region>();
-    for (int i = 0; i < G.length; i++) {
-      addRanges(ranges, G[i], i);
-      Range r = ranges.poll();
-      while (!ranges.isEmpty()) {
-        Range r1 = ranges.poll();
-        if (connected(r, r1))
-          
-      }
-    }
-    return max;
-  }
-  
   private List<Range> getRanges(List<Range> ranges, int[] r, int lvl) {
     int s = -1;
     for (int j = 0; j < r.length; j++) {
@@ -122,6 +121,7 @@ public class ConnectedCells {
             if (!(re.x1 > e.x2+1 || re.x2 < e.x1-1)) return true;
         return false;
     }
+  */
 
     public static void main(String[] args) {
         ConnectedCells cc = new ConnectedCells();
