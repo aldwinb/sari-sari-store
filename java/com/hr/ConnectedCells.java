@@ -7,10 +7,6 @@ import java.math.*;
 import java.util.regex.*;
 
 public class ConnectedCells {
-    // 1 1 1 0 0
-    // 0 0 1 0 1
-    // 0 0 1 1 0
-    // 1 0 0 0 0
     private class Vertex {
         public int x, y;
         public Vertex(int x, int y) {
