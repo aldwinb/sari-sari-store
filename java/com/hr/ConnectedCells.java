@@ -7,121 +7,66 @@ import java.math.*;
 import java.util.regex.*;
 
 public class ConnectedCells {
-  public int maxRegion(int[][] G) {
-    if (G.length == 0 || G[0].length == 0) return 0;
-    if (G.length == 1 && G[0].length == 1) return G[0][0];
-
-    int max = 0;
-    Map<Range, Region> rrMap = new HashMap<Range, Region>();
-    Queue<Range> ranges = new PriorityQueue<Range>();
-    //List<Region> regions = new ArrayList<Region>();
-    for (int i = 0; i < G.length; i++) {
-      addRanges(ranges, G[i], i);
-      Range r = ranges.poll();
-      while (!ranges.isEmpty()) {
-        Range r1 = ranges.poll();
-        if (connected(r, r1))
-          
-      }
-    }
-    return max;
-  }
-  
-  /*
-  private class Range implements Comparable<Range> {
-    private int hashCode;
-    public int x1, x2, y1;
-    public Range(int x1, int x2, int y1) {
-      this.x1 = x1;
-      this.x2 = x2;
-      this.y1 = y1;
-      hashCode = x1*10 + y1;
-    }
-    public int hashCode() {
-      return hashCode;
-    }
-    public int compareTo(Range r) {
-      if (this.x1 < r.x1) return -1;
-      if (this.x1 == r.x1) return 0;
-      return 1;
-    }
-  }
-  
-  private class Region {
-    public int size;
-    public Region() {
-      size = 0;
-    }
-  }
-    private class Region {
-        Map<Integer, List<Range>> ranges;
-        public int count;
-        private Region() {
-            count = 0;
-        }
-        public Region(Range e, int lvl) {
-            this();
-            ranges = new HashMap<Integer, List<Range>>();
-            addRange(e, lvl);
-        }
-        public void addRange(Range e, int lvl) {
-            if (!ranges.containsKey(lvl))
-                ranges.put(lvl, new ArrayList<Range>());
-            ranges.get(lvl).add(e);
-            count += e.x2+1-e.x1;
+    // 1 1 1 0 0
+    // 0 0 1 0 1
+    // 0 0 1 1 0
+    // 1 0 0 0 0
+    private class Vertex {
+        public int x, y;
+        public Vertex(int x, int y) {
+            this.x = x;
+            this.y = y;
         }
     }
     
-  private List<Range> getRanges(List<Range> ranges, int[] r, int lvl) {
-    int s = -1;
-    for (int j = 0; j < r.length; j++) {
-      if (r[j] == 1) { 
-        if (s == -1) s = j;
-      } else {
-        if (s != -1) {
-          ranges.add(new Range(s, j-1, lvl));
-          s = -1;
-        }
-      }
-    }
-
-    if (s != -1)
-      ranges.add(new Range(s, r.length-1, lvl));
-  }
-
-    private int expandRegions(
-        List<Region> regions, 
-        Iterable<Range> newEnds,
-        int lvl) {
-
-        Set<Integer> marked = new HashSet<Integer>();
+    private boolean[][] visited;
+    public int maxRegion(int[][] G) {
+        if (G.length == 0 || G[0].length == 0) return 0;
+        if (G.length == 1 && G[0].length == 1) return G[0][0];
+    
+        visited = new boolean[G.length][G[0].length];
+        for (int i = 0; i < G.length; i++)
+            Arrays.fill(visited[i], false);
+        
         int max = 0;
-        for (Range e : newEnds)
-            for (Region r : regions)
-                if (connected(r, e, lvl-1)) {
-                    r.addRange(e, lvl);
-                    marked.add(e.x2);
-                    max = Math.max(max, r.count);
-                }
-
-        for (Range e : newEnds)
-            if (!marked.contains(e.x2)) {
-                Region r = new Region(e, lvl);
-                regions.add(r);
-                //System.out.format("x2 = %s, x1 = %s, count = %s\n", e.x2, e.x1, r.count);
-                max = Math.max(max, r.count);
+        for (int i = 0; i < G.length; i++) {
+            for (int j = 0; j < G[0].length; j++) {
+                if (visited[i][j]) continue;
+                if (G[i][j] == 1)
+                    max = Math.max(max, dfs(G, new Vertex(j, i))+1);
             }
-
+        }
         return max;
     }
-
-    private boolean connected(Region r, Range e, int lvl) {
-        if (!r.ranges.containsKey(lvl)) return false;
-        for (Range re : r.ranges.get(lvl))
-            if (!(re.x1 > e.x2+1 || re.x2 < e.x1-1)) return true;
-        return false;
+    
+    private int dfs(int[][] G, Vertex v) {
+        visited[v.y][v.x] = true;
+        int count = 0;
+        for (Vertex w : getAdj(v, G)) {
+            if (visited[w.y][w.x]) continue;
+            if (G[w.y][w.x] == 1)
+                count += dfs(G, w)+1;
+        }
+        return count;
     }
-  */
+    
+    private Iterable<Vertex> getAdj(Vertex v, int[][] G) {
+        int[] xc = new int[] { -1, 0, 1},
+            yc = new int[] { -1, 0, 1 };
+        
+        List<Vertex> adj = new ArrayList<Vertex>();
+        for (int yp : yc) {
+            for (int xp : xc) {
+                if (yp == 0 && xp == 0) continue;
+                int nx = v.x+xp,
+                    ny = v.y+yp;
+                if (ny >= 0 && ny < G.length &&
+                    nx >= 0 && nx < G[0].length)
+                    adj.add(new Vertex(nx, ny));
+            }
+        }
+        return adj;
+    }
 
     public static void main(String[] args) {
         ConnectedCells cc = new ConnectedCells();
