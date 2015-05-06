@@ -3,7 +3,7 @@ package com.hr;
 import java.util.*;
 import java.util.regex.*;
 
-public class SherlockAndAnagrams  {
+public class SherlockAnagrams  {
     private class Node {
         char c;
         int val;
@@ -74,7 +74,7 @@ public class SherlockAndAnagrams  {
     
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
-        SherlockAndAnagrams soln = new SherlockAndAnagrams();
+        SherlockAnagrams soln = new SherlockAnagrams();
         while (in.hasNextLine()) {
             String[] pairs = in.nextLine().split("\\t");
             int count = soln.countAnagramPairs(pairs[0]);

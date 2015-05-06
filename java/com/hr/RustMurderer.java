@@ -30,25 +30,36 @@ public class RustMurderer {
             if (distTo == that.distTo) return 0;
             return 1;
         }
+        @Override
+        public int hashCode() {
+            return val;
+        }
     }
 
     public String minSideRoads(int citySize, String[] mainRoads, int start) {
         Vertex[] vertices = buildVertices(citySize, mainRoads, start);
-        Queue<Vertex> vertexPq = new PriorityQueue<Vertex>(); 
-        for (int i = 1; i <= citySize; i++)
-            vertexPq.add(vertices[i]);
         Vertex s = vertices[start];
+        
+        Queue<Vertex> vertexPq = new PriorityQueue<Vertex>(); 
+        for (int i = 1; i <= citySize; i++) {
+            Vertex v = vertices[i];
+            if (!v.isAdj(s))
+                vertexPq.add(v);
+        }
+
         for (Vertex a : s.adj) {
             int distTo = 0;
-            for (Vertex w : vertexPq)
+            for (Vertex w : vertexPq) {
                 if (!a.isAdj(w)) {
                     distTo = w.distTo;
+                    // System.out.format("a = %s, w = %s, distTo = %s\n", a.val, w.val, distTo);
                     break;
                 }
-            vertexPq.remove(a);
+            }
             a.distTo += distTo;
             vertexPq.add(a);
         }
+
         return stringify(vertices, start);
     }
 
@@ -79,14 +90,14 @@ public class RustMurderer {
     }
 
     public static void main(String[] args) {
-        RustMurderer rm = new RustMurderer();
+        //RustMurderer rm = new RustMurderer();
         Scanner s = new Scanner(System.in);
         while (s.hasNextLine()) {
             String[] testCase = s.nextLine().split("\\t");
             int citySize = Integer.parseInt(testCase[0]),
                 start = Integer.parseInt(testCase[1]);
             String[] mainRoads = testCase[2].split(",");
-            String actual = rm.minSideRoads(citySize, mainRoads, start);
+            String actual = new RustMurderer().minSideRoads(citySize, mainRoads, start);
             if (!actual.equals(testCase[3]))
                 System.out.format("%s\texpected=%s\tactual=%s\n", 
                     testCase[2],
