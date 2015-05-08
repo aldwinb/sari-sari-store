@@ -52,7 +52,6 @@ public class RustMurderer {
             for (Vertex w : vertexPq) {
                 if (!a.isAdj(w)) {
                     distTo = w.distTo;
-                    // System.out.format("a = %s, w = %s, distTo = %s\n", a.val, w.val, distTo);
                     break;
                 }
             }
@@ -70,7 +69,8 @@ public class RustMurderer {
         for (int i = 1; i <= citySize; i++)
             vertices[i] = new Vertex(i, 1);
         for (String r : mainRoads) {
-            String[] rs = r.split(" ");
+            String[] rs = r.trim().split(" ");
+            if (rs[0].length() == 0) continue;
             int r1 = Integer.parseInt(rs[0]),
                 r2 = Integer.parseInt(rs[1]);
             vertices[r1].addAdj(vertices[r2]);
@@ -96,6 +96,7 @@ public class RustMurderer {
             String[] testCase = s.nextLine().split("\\t");
             int citySize = Integer.parseInt(testCase[0]),
                 start = Integer.parseInt(testCase[1]);
+            System.out.format("testCase[2] = %s, testCase[2].length() = %s\n", testCase[2], testCase[2].length());
             String[] mainRoads = testCase[2].split(",");
             String actual = new RustMurderer().minSideRoads(citySize, mainRoads, start);
             if (!actual.equals(testCase[3]))
