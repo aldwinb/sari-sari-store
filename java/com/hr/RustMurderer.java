@@ -39,7 +39,8 @@ public class RustMurderer {
     private class IndegreeComparator implements Comparator<Vertex> {
         public int compare(Vertex v1, Vertex v2) {
             if (v1.adjCount() < v2.adjCount()) return -1;
-            if (v1.adjCount() == v2.adjCount()) return 0;
+            if (v1.adjCount() == v2.adjCount()) 
+                return v1.val < v2.val ? -1 : 1;
             return 1;
         }
     }
@@ -59,10 +60,10 @@ public class RustMurderer {
             int distTo = 0;
             for (Vertex w : vertexPq) {
                 if (!a.isAdj(w)) {
-                    /*
-                    if (start == 225)
-                        System.out.format("a = %s, w = %s, dist = %s\n", a.val, w.val, w.distTo);
-                    */
+                    
+                    //if (start == 225)
+                    //System.out.format("a = %s, w = %s, dist = %s\n", a.val, w.val, w.distTo);
+                    
                     distTo = w.distTo;
                     break;
                 }
