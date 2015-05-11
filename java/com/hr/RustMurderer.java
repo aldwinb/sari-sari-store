@@ -61,8 +61,8 @@ public class RustMurderer {
             for (Vertex w : vertexPq) {
                 if (!a.isAdj(w)) {
                     
-                    //if (start == 225)
-                    //System.out.format("a = %s, w = %s, dist = %s\n", a.val, w.val, w.distTo);
+                    if (start == 139)
+                        System.out.format("a = %s, w = %s, dist = %s\n", a.val, w.val, w.distTo);
                     
                     distTo = w.distTo;
                     break;
@@ -131,27 +131,10 @@ public class RustMurderer {
                 System.out.format("N = %s\n", N);
                 System.out.format("M = %s\n", M);
                 System.out.format("S = %s\n", start);
-                System.out.format("expected = %s\n", expected);
-                System.out.format("actual = %s\n", actual); 
+                System.out.format("e = %s\n", expected);
+                System.out.format("a = %s\n", actual); 
             }
         }
-        
-        /*
-        Scanner s = new Scanner(System.in);
-        while (s.hasNextLine()) {
-            String[] testCase = s.nextLine().split("\\t");
-            int citySize = Integer.parseInt(testCase[0]),
-                start = Integer.parseInt(testCase[1]);
-            String[] mainRoads = testCase[2].split(",");
-            String actual = stringify(
-                new RustMurderer().minSideRoads(citySize, mainRoads, start));
-            if (!testCase[3].equals(actual))
-                System.out.format("%s\texpected=%s\tactual=%s\n", 
-                    testCase[2],
-                    testCase[3],
-                    actual);
-        }
-        */
     }
     
     private static String stringify(Integer[] dist) {
