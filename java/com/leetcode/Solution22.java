@@ -5,24 +5,32 @@ import java.util.*;
 public class Solution22 {
     public List<String> generateParenthesis(int n) {
         List<String> parens = new ArrayList<String>();
-        for (String p : generate(n))
-            parens.add(p);
+        if (n == 0) return parens;
+        for (String p : generate(n-1, n))
+            parens.add("(" + p);
         return parens;
     }
 
-    private Set<String> generate(int n) {
+    private Set<String> generate(int o, int c) {
         Set<String> parens = new HashSet<String>();
-        if (n == 1) {
-            parens.add("()");
+        if (o == 0 && c == 1) {
+            parens.add(")");
             return parens;
         }
        
-        Set<String> addlParens = generate(n-1);
-        for (String p : addlParens) {
-            parens.add("("+p+")");
-            parens.add("()"+p);
-            parens.add(p+"()");
+        Set<String> addlParens = null;
+        if (o > 0) {
+            addlParens = generate(o-1, c);
+            for (String ap : addlParens)
+                parens.add("(" + ap);
         }
+
+        if (c > o) {
+            addlParens = generate(o, c-1);
+            for (String ap : addlParens)
+                parens.add(")" + ap);
+        }
+
         return parens;
     }
 
