@@ -59,10 +59,11 @@ public class RustMurderer {
         for (Vertex a : sortAdj(s.adj)) {
             int distTo = 0;
             for (Vertex w : vertexPq) {
+                
+                    if (start == 1 && citySize == 5)
+                        System.out.format("a = %s, w = %s, dist = %s\n", a.val, w.val, w.distTo);
                 if (!a.isAdj(w)) {
                     
-                    if (start == 139)
-                        System.out.format("a = %s, w = %s, dist = %s\n", a.val, w.val, w.distTo);
                     
                     distTo = w.distTo;
                     break;
@@ -132,8 +133,9 @@ public class RustMurderer {
                 System.out.format("M = %s\n", M);
                 System.out.format("S = %s\n", start);
                 System.out.format("e = %s\n", expected);
-                System.out.format("a = %s\n", actual); 
+                System.out.format("a = %s\n", actual);
             }
+            System.out.println("");
         }
     }
     
