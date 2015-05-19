@@ -72,19 +72,24 @@ public class RustMurderer {
             citySize,
             mainRoads,
             start);
+
         Set<Integer> startAdj = vertices.get(start);
         for (int s : startAdj) {
             Queue<Vertex> q = new LinkedList<Vertex>();
             boolean[] inQ = new boolean[citySize+1];
-            
+            boolean foundMin = false;
+
             q.add(new Vertex(s));
             Arrays.fill(inQ, false);
             
-            while (!q.isEmpty()) {
+            while (!q.isEmpty() && !foundMin) {
                 Vertex v = q.poll();
                 for (int w : vertices.get(v.val)) {
+                    if (w == s) continue;
+                    //System.out.format("s = %s, v = %s, w = %s\n", s, v.val, w);
                     if (w == start) {
                         mins[s] = v.distTo+1;
+                        foundMin = true;
                         break;
                     }
                     if (inQ[w]) continue;
@@ -94,7 +99,13 @@ public class RustMurderer {
             }
         }
 
-        return mins;
+        Integer[] res = new Integer[citySize-1];
+        int j = 0;
+        for (int i = 1; i <= citySize; i++) {
+            if (i == start) continue;
+            res[j++] = mins[i]; 
+        }
+        return res;
         /*
         Vertex[] vertices = buildVertices(citySize, mainRoads, start);
         Vertex s = vertices[start];
@@ -132,9 +143,8 @@ public class RustMurderer {
         String[] mainRoads, 
         int start) {
 
-        Map<Integer, Set<Integer>> vertices = 
-            new HashMap<Integer, Set<Integer>>();
-        for (int i = 1; i <= citySize; i++) {
+        /*
+                for (int i = 1; i <= citySize; i++) {
             Set<Integer> ws = new HashSet<Integer>();
             for (int j = 1; i <= citySize; j++) {
                 if (i == j) continue;
@@ -142,15 +152,41 @@ public class RustMurderer {
             }
             vertices.put(i, ws);
         }
+        */
+        
+        boolean[][] hasEdge = new boolean[citySize+1][citySize+1];
+        for (int i = 1; i <= citySize; i++)
+            Arrays.fill(hasEdge[i], true);
 
         for (String r : mainRoads) {
             String[] rs = r.trim().split(" ");
             if (rs[0].length() == 0) continue;
             int r1 = Integer.parseInt(rs[0]),
                 r2 = Integer.parseInt(rs[1]);
-            vertices.get(r1).remove(r2);
-            vertices.get(r2).remove(r1);
+            hasEdge[r1][r2] = false;
+            hasEdge[r2][r1] = false;
         }
+
+        Map<Integer, Set<Integer>> vertices = 
+            new HashMap<Integer, Set<Integer>>();
+        for (int i = 1; i <= citySize; i++) {
+            if (i == start) continue;
+            Set<Integer> ws = new HashSet<Integer>();
+            for (int j = 1; j <= citySize; j++) {
+                if (i == j) continue;
+                if (hasEdge[i][j])
+                    ws.add(j);
+            }
+            vertices.put(i, ws);
+        }
+
+        boolean[] startEdges = hasEdge[start];
+        Set<Integer> ws = new HashSet<Integer>();
+        for (int i = 1; i <= citySize; i++)
+            if (!startEdges[i])
+                ws.add(i);
+        vertices.put(start, ws);
+
         return vertices;
     }
 
@@ -199,8 +235,8 @@ public class RustMurderer {
                 System.out.format("S = %s\n", start);
                 System.out.format("e = %s\n", expected);
                 System.out.format("a = %s\n", actual);
+                System.out.println("");
             }
-            System.out.println("");
         }
     }
     
