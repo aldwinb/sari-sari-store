@@ -3,6 +3,7 @@ package com.hr;
 import java.util.*;
 
 public class RustMurderer {
+    /*
     private class Vertex implements Comparable<Vertex> {
         public int val, distTo;
         public Set<Vertex> adj;
@@ -35,7 +36,21 @@ public class RustMurderer {
             return val;
         }
     }
+    */
 
+    private class Vertex {
+        public int val, distTo;
+        public Vertex(int val) {
+            this.val = val;
+            this.distTo = 0;
+        }
+        public Vertex(int val, int distTo) {
+            this(val);
+            this.distTo = distTo;
+        }
+    }
+
+    /*
     private class IndegreeComparator implements Comparator<Vertex> {
         public int compare(Vertex v1, Vertex v2) {
             if (v1.adjCount() < v2.adjCount()) return -1;
@@ -44,8 +59,43 @@ public class RustMurderer {
             return 1;
         }
     }
+    */
 
-    public Integer[] minSideRoads(int citySize, String[] mainRoads, int start) {
+    public Integer[] minSideRoads(
+        int citySize, 
+        String[] mainRoads, 
+        int start) {
+       
+        Integer mins[] = new Integer[citySize+1];
+        Arrays.fill(mins, 1);
+        Map<Integer, Set<Integer>> vertices = buildVertices(
+            citySize,
+            mainRoads,
+            start);
+        Set<Integer> startAdj = vertices.get(start);
+        for (int s : startAdj) {
+            Queue<Vertex> q = new LinkedList<Vertex>();
+            boolean[] inQ = new boolean[citySize+1];
+            
+            q.add(new Vertex(s));
+            Arrays.fill(inQ, false);
+            
+            while (!q.isEmpty()) {
+                Vertex v = q.poll();
+                for (int w : vertices.get(v.val)) {
+                    if (w == start) {
+                        mins[s] = v.distTo+1;
+                        break;
+                    }
+                    if (inQ[w]) continue;
+                    q.add(new Vertex(w, v.distTo+1));
+                    inQ[w] = true;
+                }
+            }
+        }
+
+        return mins;
+        /*
         Vertex[] vertices = buildVertices(citySize, mainRoads, start);
         Vertex s = vertices[start];
         
@@ -74,32 +124,46 @@ public class RustMurderer {
         }
 
         return getDists(vertices, start);
+        */
     }
 
+    private Map<Integer, Set<Integer>> buildVertices(
+        int citySize, 
+        String[] mainRoads, 
+        int start) {
+
+        Map<Integer, Set<Integer>> vertices = 
+            new HashMap<Integer, Set<Integer>>();
+        for (int i = 1; i <= citySize; i++) {
+            Set<Integer> ws = new HashSet<Integer>();
+            for (int j = 1; i <= citySize; j++) {
+                if (i == j) continue;
+                ws.add(j);
+            }
+            vertices.put(i, ws);
+        }
+
+        for (String r : mainRoads) {
+            String[] rs = r.trim().split(" ");
+            if (rs[0].length() == 0) continue;
+            int r1 = Integer.parseInt(rs[0]),
+                r2 = Integer.parseInt(rs[1]);
+            vertices.get(r1).remove(r2);
+            vertices.get(r2).remove(r1);
+        }
+        return vertices;
+    }
+
+    /*
     private Set<Vertex> sortAdj(Iterable<Vertex> vIter) {
         Set<Vertex> sorted = new TreeSet<Vertex>(new IndegreeComparator());
         for (Vertex v : vIter)
             sorted.add(v);
         return sorted;
     }
+    */
 
-    private Vertex[] buildVertices(int citySize, 
-        String[] mainRoads, 
-        int start) {
-        Vertex[] vertices = new Vertex[citySize+1];
-        for (int i = 1; i <= citySize; i++)
-            vertices[i] = new Vertex(i, 1);
-        for (String r : mainRoads) {
-            String[] rs = r.trim().split(" ");
-            if (rs[0].length() == 0) continue;
-            int r1 = Integer.parseInt(rs[0]),
-                r2 = Integer.parseInt(rs[1]);
-            vertices[r1].addAdj(vertices[r2]);
-            vertices[r2].addAdj(vertices[r1]);
-        }
-        return vertices;
-    }
-
+    /*
     private Integer[] getDists(Vertex[] vertices, int start) {
         List<Integer> dists = new ArrayList<Integer>();
         for (int i = 1; i < vertices.length; i++) {
@@ -109,6 +173,7 @@ public class RustMurderer {
         }
         return dists.toArray(new Integer[0]);
     }
+    */
 
     public static void main(String[] args) {
         Scanner s = new Scanner(System.in);
