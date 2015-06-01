@@ -3,9 +3,9 @@ import os
 import re
 import pprint
 
-email_pat = '(?:mail(?:to)?\s*:\s*)*([^"\(\),:;<>@\[\]\s]+)(?:\s.*\s(?:&ldquo;|"))*(?:\s?@\s?|&#x40;|\s(?:where|at)\s)(\w+)(?:(?:\.|;|\s(?:dom|dot)\s)(\w+))*(?:\.|;|\s(?:dom|dot)\s)(\w+)(?:&rdquo;|")*' 
+email_pat = '(?:(?:mail(?:to)?\s*:\s*)*([^"\(\),:;<>@\[\]\s]+)(?:\s\([\w\s]+\s(?:&ldquo;|"))*(?:\s?@\s?|&#x40;|\s(?:where)\s)(\w+)(?:(?:\.|;|\s(?:dom|do?t)\s)(\w+))*(?:\.|;|\s(?:dom|do?t)\s)(\w+)(?:(?:&rdquo;|")\))*|(?:mail(?:to)?\s*:\s*)([^"\(\),:;<>@\[\]\s]+)\s+at\s+(\w+)(?:\s+(\w+))*\s+(\w+))'
 
-""" 
+"""
 TODO
 This function takes in a filename along with the file object (actually
 a StringIO object at submission time) and
