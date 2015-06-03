@@ -3,40 +3,6 @@ package com.hr;
 import java.util.*;
 
 public class RustMurderer {
-    /*
-    private class Vertex implements Comparable<Vertex> {
-        public int val, distTo;
-        public Set<Vertex> adj;
-        public Vertex(int val, int distTo) {
-            this.val = val;
-            this.distTo = distTo;
-            this.adj = new HashSet<Vertex>();
-        }
-        public Vertex(int val, int distTo, Set<Vertex> adj) {
-            this(val, distTo);
-            this.adj = adj;
-        }
-        
-        public void addAdj(Vertex w) {
-            adj.add(w);
-        }
-        public boolean isAdj(Vertex w) {
-            return adj.contains(w);
-        }
-        public int adjCount() {
-            return adj.size();
-        }
-        public int compareTo(Vertex that) {
-            if (distTo < that.distTo) return -1;
-            if (distTo == that.distTo) return 0;
-            return 1;
-        }
-        @Override
-        public int hashCode() {
-            return val;
-        }
-    }
-    */
 
     private class Vertex {
         public int val, distTo;
@@ -49,17 +15,6 @@ public class RustMurderer {
             this.distTo = distTo;
         }
     }
-
-    /*
-    private class IndegreeComparator implements Comparator<Vertex> {
-        public int compare(Vertex v1, Vertex v2) {
-            if (v1.adjCount() < v2.adjCount()) return -1;
-            if (v1.adjCount() == v2.adjCount()) 
-                return v1.val < v2.val ? -1 : 1;
-            return 1;
-        }
-    }
-    */
 
     public Integer[] minSideRoads(
         int citySize, 
@@ -82,8 +37,21 @@ public class RustMurderer {
             q.add(new Vertex(s));
             Arrays.fill(inQ, false);
             
-            while (!q.isEmpty() && !foundMin) {
+            while (!q.isEmpty()) {
                 Vertex v = q.poll();
+                Set<Integer> ws = vertices.get(v.val);
+                if (!ws.contains(start)) {
+                    mins[s] = v.distTo+1;
+                    break;
+                }
+                for (int i = 1; i <= citySize; i++) {
+                    if (inQ[i]) continue;
+                    if (ws.contains(i)) continue;
+                    q.add(new Vertex(i, v.distTo+1));
+                    inQ[i] = true;
+                }
+
+                /*
                 for (int w : vertices.get(v.val)) {
                     if (w == s) continue;
                     //System.out.format("s = %s, v = %s, w = %s\n", s, v.val, w);
@@ -96,6 +64,7 @@ public class RustMurderer {
                     q.add(new Vertex(w, v.distTo+1));
                     inQ[w] = true;
                 }
+                */
             }
         }
 
@@ -106,66 +75,70 @@ public class RustMurderer {
             res[j++] = mins[i]; 
         }
         return res;
-        /*
-        Vertex[] vertices = buildVertices(citySize, mainRoads, start);
-        Vertex s = vertices[start];
-        
-        Queue<Vertex> vertexPq = new PriorityQueue<Vertex>(); 
-        for (int i = 1; i <= citySize; i++) {
-            Vertex v = vertices[i];
-            if (!v.equals(s) && !v.isAdj(s))
-                vertexPq.add(v);
-        }
-
-        for (Vertex a : sortAdj(s.adj)) {
-            int distTo = 0;
-            for (Vertex w : vertexPq) {
-                
-                    if (start == 1 && citySize == 5)
-                        System.out.format("a = %s, w = %s, dist = %s\n", a.val, w.val, w.distTo);
-                if (!a.isAdj(w)) {
-                    
-                    
-                    distTo = w.distTo;
-                    break;
-                }
-            }
-            a.distTo += distTo;
-            vertexPq.add(a);
-        }
-
-        return getDists(vertices, start);
-        */
     }
 
     private Map<Integer, Set<Integer>> buildVertices(
         int citySize, 
         String[] mainRoads, 
         int start) {
-
+    
         /*
-                for (int i = 1; i <= citySize; i++) {
-            Set<Integer> ws = new HashSet<Integer>();
-            for (int j = 1; i <= citySize; j++) {
-                if (i == j) continue;
-                ws.add(j);
-            }
-            vertices.put(i, ws);
-        }
-        */
-        
-        boolean[][] hasEdge = new boolean[citySize+1][citySize+1];
-        for (int i = 1; i <= citySize; i++)
-            Arrays.fill(hasEdge[i], true);
+        BitSet[] hasEdge = new BitSet[citySize+1];
+        for (int i = 0; i < hasEdge.length; i++)
+            hasEdge[i] = new BitSet(citySize+1);
+        //Arrays.fill(hasEdge, new BitSet(citySize+1));
 
+        for (int i = 1; i <= citySize; i++) 
+            for (int j = 1; j <= citySize; j++) 
+                System.out.format("i = %s, j = %s, hasEdge[i][j] = %s\n", i, j, hasEdge[i].get(j));
+        */
+
+        //System.out.format("hasEdge[0] = %s\n", hasEdge[0].toString());
+
+        Map<Integer, Set<Integer>> vertices = 
+            new HashMap<Integer, Set<Integer>>();
+        
         for (String r : mainRoads) {
             String[] rs = r.trim().split(" ");
             if (rs[0].length() == 0) continue;
             int r1 = Integer.parseInt(rs[0]),
                 r2 = Integer.parseInt(rs[1]);
-            hasEdge[r1][r2] = false;
-            hasEdge[r2][r1] = false;
+            
+            if (!vertices.containsKey(r1))
+                vertices.put(r1, new HashSet<Integer>());
+            if (!vertices.containsKey(r2))
+                vertices.put(r2, new HashSet<Integer>());
+            vertices.get(r1).add(r2);
+            vertices.get(r2).add(r1);
+            //hasEdge[r1].set(r2);
+            //hasEdge[r2].set(r1);
         }
+
+        return vertices;
+        /*
+        Map<Integer, Set<Integer>> antiVert = 
+            new HashMap<Integer, Set<Integer>>();
+        for (int k : vertices.keySet()) {
+            if (k == start) continue;
+            Set<Integer> adj = vertices.get(k),
+                antiAdj = new HashSet<Integer>();
+            for (int i = 1; i <= citySize; i++) {
+                if (!adj.contains(i))
+                    antiAdj.add(i);
+            }
+            antiVert.put(k, antiAdj);
+        }
+
+        return antiVert;
+        */
+
+        /*
+        for (int i = 1; i <= citySize; i++) 
+            for (int j = 1; j <= citySize; j++) 
+                System.out.format("i = %s, j = %s, hasEdge[i][j] = %s\n", 
+                    i, 
+                    j, 
+                    hasEdge[i].get(j) ? 1 : 0);
 
         Map<Integer, Set<Integer>> vertices = 
             new HashMap<Integer, Set<Integer>>();
@@ -174,10 +147,21 @@ public class RustMurderer {
             Set<Integer> ws = new HashSet<Integer>();
             for (int j = 1; j <= citySize; j++) {
                 if (i == j) continue;
-                if (hasEdge[i][j])
+                //System.out.format("i = %s, j = %s, hasEdge[i][j] = %s\n", i, j, hasEdge[i].get(j));
+                if (!hasEdge[i].get(j))
                     ws.add(j);
             }
             vertices.put(i, ws);
+        }
+
+        BitSet startEdges = hasEdge[start];
+        Set<Integer> ws = new HashSet<Integer>();
+        for (int i = 1; i <= citySize; i++)
+            if (startEdges.get(i))
+                ws.add(i);
+        vertices.put(start, ws);
+
+        return vertices;
         }
 
         boolean[] startEdges = hasEdge[start];
@@ -188,28 +172,8 @@ public class RustMurderer {
         vertices.put(start, ws);
 
         return vertices;
+        */
     }
-
-    /*
-    private Set<Vertex> sortAdj(Iterable<Vertex> vIter) {
-        Set<Vertex> sorted = new TreeSet<Vertex>(new IndegreeComparator());
-        for (Vertex v : vIter)
-            sorted.add(v);
-        return sorted;
-    }
-    */
-
-    /*
-    private Integer[] getDists(Vertex[] vertices, int start) {
-        List<Integer> dists = new ArrayList<Integer>();
-        for (int i = 1; i < vertices.length; i++) {
-            Vertex v = vertices[i];
-            if (v.val == start) continue;
-            dists.add(v.distTo);
-        }
-        return dists.toArray(new Integer[0]);
-    }
-    */
 
     public static void main(String[] args) {
         Scanner s = new Scanner(System.in);
