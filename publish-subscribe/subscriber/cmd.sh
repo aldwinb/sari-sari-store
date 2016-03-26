@@ -3,7 +3,7 @@
 # Do tasks here that are required for your Docker development environment to
 # run (e.g. install requirements)
 # 
-pip install --upgrade -r /app/requirements.txt
+pip install --upgrade -r requirements.txt
 
 export PYTHONPATH="/app"
 
