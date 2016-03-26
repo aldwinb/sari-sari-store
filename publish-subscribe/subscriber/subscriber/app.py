@@ -2,6 +2,9 @@
 
 from subscriber import msgbus
 import configparser
+import datetime as dt
+import inspect
+import os.path
 
 def on_message(channel, method_frame, header_frame, body):
     print(method_frame.delivery_tag)
@@ -11,8 +14,9 @@ def on_message(channel, method_frame, header_frame, body):
 
 
 def main():
+    pre_path =os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     config = configparser.ConfigParser()
-    config.read('app.ini')
+    config.read(os.path.join(pre_path, 'app.ini'))
 
     client = msgbus.RabbitMqClient(config['rabbitmq']['host'])
     opts = msgbus.RabbitMqChannelOptions(config['rabbitmq']['host'],
@@ -23,6 +27,7 @@ def main():
     channel = client.create_channel(opts)
     channel.basic_consume(on_message, 'test')
     try:
+        print (str.format("[{0}] Waiting for messages...", dt.datetime.now().isoformat(' ')))
         channel.start_consuming()
     except KeyboardInterrupt:
         channel.stop_consuming()

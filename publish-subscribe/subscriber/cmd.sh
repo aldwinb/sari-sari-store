@@ -8,5 +8,5 @@ pip install --upgrade -r requirements.txt
 export PYTHONPATH="/app"
 
 # start a terminal inside the Docker container
-#python3 /app/contentfilterer/app.py
+#python3 subscriber/app.py
 sh
