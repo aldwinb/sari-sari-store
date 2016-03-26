@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
 from nose.tools import *
-import subscriber
 
-class TestContentFilterer:
+class TestSubscriber:
 
     def test_must_pass(self):
         assert True
