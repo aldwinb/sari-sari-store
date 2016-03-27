@@ -18,13 +18,13 @@ def main():
     config = configparser.ConfigParser()
     config.read(os.path.join(pre_path, 'app.ini'))
 
-    client = msgbus.RabbitMqClient(config['rabbitmq']['host'])
+    #client = msgbus.RabbitMqClient(config['rabbitmq']['host'])
     opts = msgbus.RabbitMqChannelOptions(config['rabbitmq']['host'],
                                          config['rabbitmq']['exchange'],
                                          config['rabbitmq']['topics'],
                                          config['rabbitmq']['queue'])
 
-    channel = client.create_channel(opts)
+    channel =  msgbus.RabbitMqClient.create_channel(opts)
     channel.basic_consume(on_message, 'test')
     try:
         print (str.format("[{0}] Waiting for messages...", dt.datetime.now().isoformat(' ')))

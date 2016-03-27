@@ -47,11 +47,11 @@ class RabbitMqChannelOptions(object):
 class RabbitMqClient():
 
     @classmethod
-    def create_channel(cls, host, options):
+    def create_channel(cls, options):
         x = RabbitMqClient.__standardize_exchange(options.exchange)
 
         c = pika.BlockingConnection(
-            pika.ConnectionParameters(host=host)
+            pika.ConnectionParameters(host=options.host)
         )
         channel = c.channel()
         channel.exchange_declare(
