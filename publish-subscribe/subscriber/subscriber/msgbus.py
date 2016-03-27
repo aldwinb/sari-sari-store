@@ -48,7 +48,7 @@ class RabbitMqClient():
 
     @classmethod
     def create_channel(cls, options):
-        x = RabbitMqClient.__standardize_exchange(options.exchange)
+        x = cls.__standardize_exchange(options.exchange)
 
         c = pika.BlockingConnection(
             pika.ConnectionParameters(host=options.host)
@@ -62,7 +62,7 @@ class RabbitMqClient():
         if x.bindings:
             cls.__set_channel_exchange_bindings(channel, x)
 
-        q = RabbitMqClient.__standardize_queue(options.queue)
+        q = cls.__standardize_queue(options.queue)
         cls.__set_channel_queue(channel, options, q, x)
 
         if options.qos:

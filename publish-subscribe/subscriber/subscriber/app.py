@@ -25,14 +25,15 @@ def main():
                                          config['rabbitmq']['queue'])
 
     channel =  msgbus.RabbitMqClient.create_channel(opts)
-    channel.basic_consume(on_message, 'test')
+    channel.basic_consume(on_message, opts.queue)
     try:
         print (str.format("[{0}] Waiting for messages...", dt.datetime.now().isoformat(' ')))
         channel.start_consuming()
     except KeyboardInterrupt:
         channel.stop_consuming()
     channel.connection.close()
-    channel.close()
+    if not channel.is_closed:
+        channel.close()
 
 
 if __name__ == '__main__':
