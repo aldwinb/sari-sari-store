@@ -15,5 +15,5 @@ fi
 # vagrant up / reload
 if $cmd $@; then
     # if successful, start rsync as background process
-    vagrant gatling-rsync-auto &> /tmp/vagrant-rsync.log &
+    vagrant gatling-rsync-auto &> /tmp/my-dev-box-1-rsync.log &
 fi
