@@ -38,10 +38,12 @@ alias dockerid="docker-id.sh"
 alias yesdock="dockerid -a=true"
 alias nodock="dockerid -a=false"
 
-docker_remove_dangling () {
-  docker rmi -f $(docker images -f 'dangling=true' | egrep -v "IMAGE" | 
-  awk '{ print $3 }')
-}
+docker_rm_exited() {
+  docker rm -f $(docker ps -f status=exited -q)
+ }
+docker_rmi_dangling() {
+  docker rmi -f $(docker images -f dangling=true -q)
+ }
 
 # git shortcuts
 git_merge() {
