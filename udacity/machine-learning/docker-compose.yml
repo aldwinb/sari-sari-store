@@ -1,0 +1,14 @@
+version: '2'
+services:
+  app:
+    #image: continuumio/anaconda:latest
+    build: .
+    container_name: udacity-ml-jupyter-1
+    expose:
+      - "8888"
+    ports: 
+      - "8888:8888"
+    volumes:
+      - $HOME/Projects/personal/udacity:/root/Projects/personal/udacity
+    command: tail -f /dev/null
+
