@@ -9,6 +9,10 @@ source "${GITAWAREPROMPT}/main.sh"
 export PS1="\W \[$txtcyn\]\$git_branch\[$txtred\]\$git_dirty\[$txtrst\] [\u 🍕 ] $ "
 export SUDO_PS1="\[$bakred\]\W [\u]\[$txtrst\] $ "
 
+if [ -f $(brew --prefix)/etc/bash_completion ]; then
+  . $(brew --prefix)/etc/bash_completion
+fi
+
 alias ll="ls -la"
 # alias ec2="ssh-to-AWS-EC2.sh"
 alias ping="ping -c 4"
@@ -47,11 +51,13 @@ docker_rmi_dangling() {
 
 # git shortcuts
 git_merge() {
-  if [ "$#" -eq "2" ]; then
+  if [ "$#" -gt "0" ]; then
+    mergee=${2:-$(git rev-parse --abbrev-ref HEAD)}
     git checkout $1
     git pull
-    if git merge --no-ff $2; then
-      git push --no-verify
+    if git merge --no-commit ${mergee}; then
+        git commit
+        git push --no-verify
     else
       echo "Merge failed."
     fi
