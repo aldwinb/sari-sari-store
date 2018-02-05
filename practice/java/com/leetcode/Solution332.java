@@ -5,10 +5,10 @@ import java.util.*;
 public class Solution332 {
     private class Graph {
 
-        private Map<String, Queue<String>> _vertices;
+        private Map<String, Set<String>> _vertices;
 
         private Graph(String[][] tickets) {
-            _vertices = new HashMap<String, Queue<String>>();
+            _vertices = new HashMap<String, Set<String>>();
             for (String[] ticket : tickets)
                 add(ticket);
         }
@@ -16,74 +16,65 @@ public class Solution332 {
         private void add(String[] ticket) {
             String start = ticket[0];
             if (!_vertices.keySet().contains(start))
-                _vertices.put(start, new PriorityQueue<String>());
+                _vertices.put(start, new TreeSet<String>());
             _vertices.get(start).add(ticket[1]);
         }
 
-//        private void remove(String v, String a) {
-//            if (_vertices.keySet().contains(v))
-//                _vertices.get(v).remove(a);
-//            else
-//                _vertices.remove(v);
-//        }
-
-        private String getAdj(String v) {
-            if (_vertices.keySet().contains(v)) {
-                Queue<String> q = _vertices.get(v);
-                String w = q.remove();
-                if (q.size() == 0)
-                    _vertices.remove(v);
-                return w;
-            }
+        private Collection<String> getAdj(String v) {
+            if (_vertices.keySet().contains(v))
+                return _vertices.get(v);
             return null;
-        }
-
-        private int count() {
-            return _vertices.size();
         }
     }
 
-    private List<String> _visited;
+    private Stack<String> _visited;
 
     public List<String> findItinerary(String[][] tickets) {
         if (tickets == null || tickets.length == 0)
             return new ArrayList<String>();
 
         Graph g = new Graph(tickets);
-        _visited = new ArrayList<String>();
+        _visited = new Stack<String>();
         List<String> list = new ArrayList<String>();
-
-        String v = "JFK";
-        list.add("JFK");
-        while (g.count() > 0) {
-            String w = g.getAdj(v);
-            if (w == null)
-                continue;
-            list.add(w);
-            v = w;
-        }
-        return list;
+        dfs(g, "JFK", tickets.length-1);
+        return new ArrayList<String>(_visited);
     }
 
-    // JFK
+    private int dfs(Graph g, String v, int depth) {
+        // If node is already visited, don't return a cost for the visit.
+        if (_visited.contains(v))
+            return 0;
 
-//    private void dfs(Graph g, String v, List<String> list) {
-//        list.add(v);
-//        //if (_visited.contains(v))
-//        //    return;
-//
-//        //_visited.add(v);
-//        Collection<String> adj = g.getAdj(v);
-//        if (adj == null)
-//            return;
-//
-//        List<String> sorted = new ArrayList<String>(adj);
-//        Collections.sort(sorted);
-//        for (String a : sorted) {
-//            dfs(g, a, list);
-//            g.remove(v, a);
-//        }
-//    }
+        // If node doesn't have any adjacent nodes and we're at the last node,
+        // then let's mark the node "visited" and return a cost for the visit.
+        // However, if there are still nodes that we haven't visited (e.g.
+        // depth != 0), then don't mark this node as "visited" and don't return
+        // a cost for the visit because this is not the end of the itinerary.
+        Collection<String> adj = g.getAdj(v);
+        if (adj == null) {
+          if (depth == 0) {
+            _visited.push(v);
+            return 1;
+          }
+          return 0;
+        }
+
+        // Mark this node as "visited".
+        _visited.push(v);
+
+        // Let's keep on traversing the graph until we traversed the path where
+        // we've visited all nodes (we're guaranteed there's at least 1). Add 1
+        // to the cost of the traversed path to account for this node.
+        int traversed = 0;
+        for (String a : adj) {
+          traversed = dfs(g, a, depth-1, list);
+          if (traversed == depth)
+            traversed++;
+            break;
+        }
+
+        return traversed;
+    }
 
     public static void main(String[] args) {
         Scanner s = new Scanner(System.in);
@@ -102,14 +93,6 @@ public class Solution332 {
                 delim = ",";
             }
             System.out.println(sb.toString());
-//            int expected = Integer.parseInt(testCase[1]),
-//                    actual = soln.findItinerary(input[0], input[1]);
-//            if (expected != actual)
-//                System.out.format(
-//                        "Test case = %s, expected = %s, actual = %s\n",
-//                        testCase[0],
-//                        expected,
-//                        actual);
         }
     }
 }
