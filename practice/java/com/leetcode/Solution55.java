@@ -5,8 +5,8 @@ class Solution55 {
     if (nums.length == 0)
       return true;
 
-    int[] visited = new int[nums.length];
-    Arrays.fill(visited, -1);
+    boolean[] visited = new boolean[nums.length];
+    Arrays.fill(visited, false);
 
     int current = nums[0],
         end = nums.length-1;
@@ -20,30 +20,43 @@ class Solution55 {
         continue;
       }
 
-      System.out.println(String.format("current = %s", current));
-      if (nums[current] == 0) 
-        current = getIndex(idxStack, current);
+      if (nums[current] == 0)
+        visited[current] = true;
+      
+      //System.out.println(String.format("current = %s, visited = %s, idxStack = %s", current, visited[current], Arrays.toString(idxStack.toArray())));
+      if (visited[current]) 
+        current = getIndex(idxStack, visited, current);
       else
-        current = getIndex(idxStack, current, nums[current]);
+        current = getIndex(idxStack, visited, current, nums[current]);
     }
 
     return reached;
   }
 
-  private int getIndex(Deque<Integer> idxStack, int current) {
-    return getIndex(idxStack, 0, 0);
+  private int getIndex(Deque<Integer> idxStack, boolean[] visited, int current) {
+    return getIndex(idxStack, visited, current, 0);
   }
 
-  private int getIndex(Deque<Integer> idxStack, int current, int jump) {
+  private int getIndex(Deque<Integer> idxStack, boolean[] visited, int current, int jump) {
     if (jump == 0) 
-      while (current == 0 && !idxStack.isEmpty())
-        current = idxStack.pop()-1;
+      while (jump == 0 && !idxStack.isEmpty()) {
+        jump = idxStack.pop()-1;
+        current--;
+        if (jump == 0 && !idxStack.isEmpty())
+          visited[current] = true;
+      }
     else
       current += jump;
 
-    System.out.println(String.format("New index: %s", current));
-    if (current > 0)
-      idxStack.push(current);
+    if (jump > 0)
+    :a
+    :q!
+    :
+
+
+:q
+:wq
+      idxStack.push(jump);
     return current;
   }
 
