@@ -49,13 +49,6 @@ class Solution55 {
       current += jump;
 
     if (jump > 0)
-    :a
-    :q!
-    :
-
-
-:q
-:wq
       idxStack.push(jump);
     return current;
   }
