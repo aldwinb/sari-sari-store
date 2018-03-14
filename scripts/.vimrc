@@ -41,11 +41,11 @@ filetype plugin indent on
 syntax on
 
 set number
-set tabstop=2
+set tabstop=4
 set shiftwidth=2
 set expandtab
 set textwidth=79  " lines longer than 79 columns will be broken
-set softtabstop=2 " insert/delete 4 spaces when hitting a TAB/BACKSPACE
+set softtabstop=4 " insert/delete 4 spaces when hitting a TAB/BACKSPACE
 set shiftround    " round indent to multiple of 'shiftwidth'
 set autoindent
 set colorcolumn=80
